@@ -30,30 +30,137 @@ class DBManager:
         self.load_module_configs()
         
     def setup_ui(self):
+        # Configuración de colores modernos
+        self.colors = {
+            'primary': '#2c3e50',      # Azul oscuro profesional
+            'secondary': '#3498db',     # Azul brillante
+            'accent': '#9b59b6',        # Púrpura elegante
+            'success': '#27ae60',       # Verde
+            'warning': '#f39c12',       # Naranja
+            'danger': '#e74c3c',        # Rojo
+            'bg_light': '#ecf0f1',      # Gris claro
+            'bg_card': '#ffffff',       # Blanco
+            'text_dark': '#2c3e50',     # Texto oscuro
+            'text_light': '#7f8c8d',    # Texto gris
+            'border': '#bdc3c7',        # Borde gris
+            'hover': '#3498db',         # Azul hover
+        }
+
+        # Configurar ventana principal con color de fondo moderno
+        self.root.configure(bg=self.colors['bg_light'])
+
         style = ttk.Style()
         style.theme_use('clam')
-        style.configure('Module.TButton', font=('Arial', 10, 'bold'), padding=10)
-        style.configure('Execute.TButton', font=('Arial', 10, 'bold'), padding=8)
-        # Style for top-right control buttons
-        style.configure('Top.TButton', font=('Arial', 10), padding=6)
-        
-        main_container = ttk.Frame(self.root)
-        main_container.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-        
-        title_frame = ttk.Frame(main_container)
-        title_frame.pack(fill=tk.X, pady=(0, 10))
-        
-        ttk.Label(title_frame, text="ARQUITECTURA DE BASE DE DATOS", 
-             font=('Arial', 18, 'bold')).pack(side=tk.LEFT)
 
-        # Right-side small control buttons grouped to avoid hugging the absolute edge
-        right_buttons_frame = ttk.Frame(title_frame)
-        right_buttons_frame.pack(side=tk.RIGHT, padx=8, pady=5)
+        # Estilos para botones de módulos con efectos modernos
+        style.configure('Module.TButton',
+                       font=('Segoe UI', 10, 'bold'),
+                       padding=12,
+                       background=self.colors['secondary'],
+                       foreground='white',
+                       borderwidth=0,
+                       focuscolor='none',
+                       relief='flat')
+        style.map('Module.TButton',
+                 background=[('active', self.colors['hover']), ('pressed', self.colors['primary'])],
+                 foreground=[('active', 'white')])
 
-        ttk.Button(right_buttons_frame, text="Historial", 
-              command=self.show_history, style='Top.TButton', width=14).pack(side=tk.RIGHT, padx=5)
-        ttk.Button(right_buttons_frame, text="Validar Requisitos", 
-              command=self.check_requirements, style='Top.TButton', width=18).pack(side=tk.RIGHT, padx=5)
+        # Estilos para botones de ejecución
+        style.configure('Execute.TButton',
+                       font=('Segoe UI', 10, 'bold'),
+                       padding=10,
+                       background=self.colors['success'],
+                       foreground='white',
+                       borderwidth=0,
+                       relief='flat')
+        style.map('Execute.TButton',
+                 background=[('active', '#229954'), ('pressed', '#1e8449')])
+
+        # Estilos para botones de control superior
+        style.configure('Top.TButton',
+                       font=('Segoe UI', 9),
+                       padding=8,
+                       background=self.colors['bg_card'],
+                       borderwidth=1,
+                       relief='flat')
+        style.map('Top.TButton',
+                 background=[('active', self.colors['bg_light'])])
+
+        # Estilos para frames y labels
+        style.configure('Card.TFrame',
+                       background=self.colors['bg_card'],
+                       relief='flat',
+                       borderwidth=0)
+
+        style.configure('TLabelframe',
+                       background=self.colors['bg_card'],
+                       borderwidth=2,
+                       relief='groove')
+        style.configure('TLabelframe.Label',
+                       font=('Segoe UI', 11, 'bold'),
+                       foreground=self.colors['primary'],
+                       background=self.colors['bg_card'])
+        
+        main_container = ttk.Frame(self.root, style='Card.TFrame')
+        main_container.pack(fill=tk.BOTH, expand=True, padx=15, pady=15)
+
+        # Header mejorado con gradiente simulado
+        title_frame = tk.Frame(main_container, bg=self.colors['primary'], height=80)
+        title_frame.pack(fill=tk.X, pady=(0, 15))
+        title_frame.pack_propagate(False)
+
+        # Contenedor interno del header
+        header_content = tk.Frame(title_frame, bg=self.colors['primary'])
+        header_content.pack(fill=tk.BOTH, expand=True, padx=20, pady=15)
+
+        # Icono y título principal
+        title_container = tk.Frame(header_content, bg=self.colors['primary'])
+        title_container.pack(side=tk.LEFT)
+
+        tk.Label(title_container, text="🗄️", font=('Segoe UI', 28),
+                bg=self.colors['primary'], fg='white').pack(side=tk.LEFT, padx=(0, 10))
+
+        title_text = tk.Frame(title_container, bg=self.colors['primary'])
+        title_text.pack(side=tk.LEFT)
+
+        tk.Label(title_text, text="DB MANAGER",
+                font=('Segoe UI', 22, 'bold'),
+                bg=self.colors['primary'],
+                fg='white').pack(anchor=tk.W)
+
+        tk.Label(title_text, text="Arquitectura de Base de Datos",
+                font=('Segoe UI', 10),
+                bg=self.colors['primary'],
+                fg=self.colors['bg_light']).pack(anchor=tk.W)
+
+        # Botones de control mejorados
+        right_buttons_frame = tk.Frame(header_content, bg=self.colors['primary'])
+        right_buttons_frame.pack(side=tk.RIGHT, padx=5)
+
+        # Crear botones con estilo personalizado
+        hist_btn = tk.Button(right_buttons_frame, text="📊 Historial",
+                            command=self.show_history,
+                            font=('Segoe UI', 9, 'bold'),
+                            bg=self.colors['accent'],
+                            fg='white',
+                            relief='flat',
+                            padx=15, pady=8,
+                            cursor='hand2',
+                            borderwidth=0)
+        hist_btn.pack(side=tk.RIGHT, padx=5)
+        self._add_hover_effect(hist_btn, self.colors['accent'], '#8e44ad')
+
+        req_btn = tk.Button(right_buttons_frame, text="✓ Validar Requisitos",
+                           command=self.check_requirements,
+                           font=('Segoe UI', 9, 'bold'),
+                           bg=self.colors['secondary'],
+                           fg='white',
+                           relief='flat',
+                           padx=15, pady=8,
+                           cursor='hand2',
+                           borderwidth=0)
+        req_btn.pack(side=tk.RIGHT, padx=5)
+        self._add_hover_effect(req_btn, self.colors['secondary'], '#2980b9')
         
         content_frame = ttk.PanedWindow(main_container, orient=tk.HORIZONTAL)
         content_frame.pack(fill=tk.BOTH, expand=True)
@@ -70,7 +177,8 @@ class DBManager:
                 "name": "GENERAR DDL INICIAL",
                 "script": str(self.modules_dir / "generar_ddl_inicial.py"),
                 "type": "python",
-                "icon": "*",
+                "icon": "📝",
+                "color": "#3498db",
                 "params": ["ruta_plantilla_excel", "ruta_salida_ddl_base"]
             },
             {
@@ -78,7 +186,8 @@ class DBManager:
                 "name": "VALIDAR NOMENCLATURA",
                 "script": str(self.modules_dir / "validar_nomenclatura.py"),
                 "type": "python",
-                "icon": "*",
+                "icon": "✓",
+                "color": "#27ae60",
                 "params": ["host", "puerto", "bd", "usuario", "password", "ruta_salida_ddl_completo"]
             },
             {
@@ -86,7 +195,8 @@ class DBManager:
                 "name": "DICCIONARIO DE DATOS",
                 "script": str(self.modules_dir / "generar_diccionario.py"),
                 "type": "python",
-                "icon": "*",
+                "icon": "📚",
+                "color": "#9b59b6",
                 "params": ["host", "puerto", "bd", "usuario", "password", "esquema", "ruta_salida_rtf"]
             },
             {
@@ -94,7 +204,8 @@ class DBManager:
                 "name": "DATA DE PRUEBA",
                 "script": str(self.modules_dir / "data_prueba.py"),
                 "type": "python",
-                "icon": "*",
+                "icon": "🧪",
+                "color": "#f39c12",
                 "params": ["host", "puerto", "bd", "usuario", "password", "esquema", "cantidad_registros"]
             },
             {
@@ -102,7 +213,8 @@ class DBManager:
                 "name": "DASHBOARD",
                 "script": str(self.modules_dir / "dashboard" / "extraer_metadata_overview.py"),
                 "type": "python",
-                "icon": "*",
+                "icon": "📊",
+                "color": "#e74c3c",
                 "params": ["ruta_ddl_completo"]
             }
         ]
@@ -113,12 +225,18 @@ class DBManager:
         right_panel = ttk.Frame(content_frame)
         content_frame.add(right_panel, weight=3)
         
-        config_frame = ttk.LabelFrame(right_panel, text="Configuracion del Modulo", padding=10)
-        config_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 5))
-        
-        self.module_name_var = tk.StringVar(value="Parametros")
-        ttk.Label(config_frame, textvariable=self.module_name_var, 
-                 font=('Arial', 12, 'bold')).pack(anchor=tk.W, pady=(0, 10))
+        config_frame = ttk.LabelFrame(right_panel, text="  ⚙ Configuración del Módulo", padding=15)
+        config_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 10))
+
+        # Header del módulo seleccionado
+        module_header = tk.Frame(config_frame, bg=self.colors['bg_card'])
+        module_header.pack(fill=tk.X, pady=(0, 15))
+
+        self.module_name_var = tk.StringVar(value="Selecciona un módulo")
+        tk.Label(module_header, textvariable=self.module_name_var,
+                font=('Segoe UI', 13, 'bold'),
+                bg=self.colors['bg_card'],
+                fg=self.colors['primary']).pack(anchor=tk.W)
         
         params_container = ttk.Frame(config_frame)
         params_container.pack(fill=tk.BOTH, expand=True)
@@ -142,69 +260,193 @@ class DBManager:
         
         self.param_widgets = {}
         
-        btn_frame = ttk.Frame(config_frame)
-        btn_frame.pack(fill=tk.X, pady=(10, 0))
+        btn_frame = tk.Frame(config_frame, bg=self.colors['bg_card'])
+        btn_frame.pack(fill=tk.X, pady=(15, 0))
 
-        # Use grid so buttons expand evenly and share the same style
-        save_btn = ttk.Button(btn_frame, text=" Guardar Configuracion", 
-                              command=self.save_module_config, style='Execute.TButton')
-        exec_btn = ttk.Button(btn_frame, text=" Ejecutar Modulo", 
-                              command=self.execute_current_module, style='Execute.TButton')
-        stop_btn = ttk.Button(btn_frame, text=" Detener", 
-                              command=self.stop_execution, style='Execute.TButton')
-
+        # Botones de acción mejorados con iconos
+        save_btn = tk.Button(btn_frame, text="💾 Guardar Configuración",
+                            command=self.save_module_config,
+                            font=('Segoe UI', 10, 'bold'),
+                            bg=self.colors['secondary'],
+                            fg='white',
+                            relief='flat',
+                            cursor='hand2',
+                            borderwidth=0,
+                            padx=15, pady=10)
         save_btn.grid(row=0, column=0, sticky='ew', padx=5)
+        self._add_hover_effect(save_btn, self.colors['secondary'], '#2980b9')
+
+        exec_btn = tk.Button(btn_frame, text="▶ Ejecutar Módulo",
+                            command=self.execute_current_module,
+                            font=('Segoe UI', 10, 'bold'),
+                            bg=self.colors['success'],
+                            fg='white',
+                            relief='flat',
+                            cursor='hand2',
+                            borderwidth=0,
+                            padx=15, pady=10)
         exec_btn.grid(row=0, column=1, sticky='ew', padx=5)
+        self._add_hover_effect(exec_btn, self.colors['success'], '#229954')
+
+        stop_btn = tk.Button(btn_frame, text="⬛ Detener",
+                            command=self.stop_execution,
+                            font=('Segoe UI', 10, 'bold'),
+                            bg=self.colors['danger'],
+                            fg='white',
+                            relief='flat',
+                            cursor='hand2',
+                            borderwidth=0,
+                            padx=15, pady=10)
         stop_btn.grid(row=0, column=2, sticky='ew', padx=5)
+        self._add_hover_effect(stop_btn, self.colors['danger'], '#c0392b')
 
         for i in range(3):
             btn_frame.columnconfigure(i, weight=1)
         
-        console_frame = ttk.LabelFrame(right_panel, text="Consola de Ejecucion", padding=5)
-        console_frame.pack(fill=tk.BOTH, expand=True)
-        
-        console_btn_frame = ttk.Frame(console_frame)
-        console_btn_frame.pack(fill=tk.X, pady=(0, 5))
-        
-        ttk.Button(console_btn_frame, text=" Limpiar", 
-                  command=self.clear_console).pack(side=tk.LEFT, padx=5)
-        ttk.Button(console_btn_frame, text=" Guardar Log", 
-                  command=self.save_log).pack(side=tk.LEFT, padx=5)
-        
-        self.console_text = scrolledtext.ScrolledText(console_frame, font=("Consolas", 9), 
-                                                      bg="#1e1e1e", fg="#d4d4d4", 
-                                                      insertbackground="white", wrap=tk.WORD)
+        console_frame = ttk.LabelFrame(right_panel, text="  📟 Consola de Ejecución", padding=10)
+        console_frame.pack(fill=tk.BOTH, expand=True, pady=(10, 0))
+
+        console_btn_frame = tk.Frame(console_frame, bg=self.colors['bg_card'])
+        console_btn_frame.pack(fill=tk.X, pady=(0, 8))
+
+        # Botones de la consola con estilo mejorado
+        clear_btn = tk.Button(console_btn_frame, text="🗑 Limpiar",
+                             command=self.clear_console,
+                             font=('Segoe UI', 9),
+                             bg=self.colors['bg_light'],
+                             fg=self.colors['text_dark'],
+                             relief='flat',
+                             cursor='hand2',
+                             borderwidth=0,
+                             padx=12, pady=6)
+        clear_btn.pack(side=tk.LEFT, padx=5)
+        self._add_hover_effect(clear_btn, self.colors['bg_light'], self.colors['border'])
+
+        save_btn = tk.Button(console_btn_frame, text="💾 Guardar Log",
+                            command=self.save_log,
+                            font=('Segoe UI', 9),
+                            bg=self.colors['bg_light'],
+                            fg=self.colors['text_dark'],
+                            relief='flat',
+                            cursor='hand2',
+                            borderwidth=0,
+                            padx=12, pady=6)
+        save_btn.pack(side=tk.LEFT, padx=5)
+        self._add_hover_effect(save_btn, self.colors['bg_light'], self.colors['border'])
+
+        # Consola con diseño moderno y mejor contraste
+        console_container = tk.Frame(console_frame, bg='#1e1e1e', relief=tk.SOLID,
+                                    borderwidth=1, highlightbackground='#3e3e42',
+                                    highlightthickness=1)
+        console_container.pack(fill=tk.BOTH, expand=True)
+
+        self.console_text = scrolledtext.ScrolledText(console_container,
+                                                      font=("Cascadia Code", 9),
+                                                      bg="#1e1e1e", fg="#d4d4d4",
+                                                      insertbackground="#4ec9b0",
+                                                      wrap=tk.WORD,
+                                                      relief=tk.FLAT,
+                                                      padx=10, pady=10,
+                                                      selectbackground='#264f78',
+                                                      selectforeground='#ffffff')
         self.console_text.pack(fill=tk.BOTH, expand=True)
-        
-        self.console_text.tag_config("info", foreground="#4ec9b0")
+
+        # Tags con colores mejorados tipo VS Code
+        self.console_text.tag_config("info", foreground="#4fc1ff")
         self.console_text.tag_config("error", foreground="#f48771")
-        self.console_text.tag_config("success", foreground="#b5cea8")
-        self.console_text.tag_config("warning", foreground="#dcdcaa")
-        self.console_text.tag_config("module", foreground="#569cd6")
+        self.console_text.tag_config("success", foreground="#73c991")
+        self.console_text.tag_config("warning", foreground="#cca700")
+        self.console_text.tag_config("module", foreground="#c586c0")
         
     def create_module_card(self, parent, module):
-        card = ttk.Frame(parent, relief=tk.RAISED, borderwidth=2)
-        card.pack(fill=tk.X, pady=5, padx=5)
-        
-        header = ttk.Frame(card)
-        header.pack(fill=tk.X, padx=10, pady=5)
-        
-        ttk.Label(header, text=f"{module['icon']} Modulo {module['id']}", 
-                 font=('Arial', 10, 'bold')).pack(side=tk.LEFT)
-        
-        type_label = ttk.Label(header, text=f"[{module['type'].upper()}]", 
-                              font=('Arial', 8), foreground='gray')
-        type_label.pack(side=tk.RIGHT)
-        
-        ttk.Label(card, text=module['name'], font=('Arial', 11)).pack(anchor=tk.W, padx=10)
-        
-        btn = ttk.Button(card, text=" Configurar y Ejecutar", 
-                        command=lambda m=module: self.select_module(m),
-                        style='Module.TButton')
-        btn.pack(fill=tk.X, padx=10, pady=(5, 10))
-        
+        # Contenedor principal de la tarjeta con fondo blanco y borde
+        card_container = tk.Frame(parent, bg=self.colors['bg_card'],
+                                 relief=tk.SOLID, borderwidth=1,
+                                 highlightbackground=self.colors['border'],
+                                 highlightthickness=1)
+        card_container.pack(fill=tk.X, pady=8, padx=8)
+
+        # Barra de color superior
+        color_bar = tk.Frame(card_container, bg=module['color'], height=4)
+        color_bar.pack(fill=tk.X)
+
+        # Contenido de la tarjeta
+        card_content = tk.Frame(card_container, bg=self.colors['bg_card'])
+        card_content.pack(fill=tk.BOTH, expand=True, padx=15, pady=12)
+
+        # Header con icono y número
+        header = tk.Frame(card_content, bg=self.colors['bg_card'])
+        header.pack(fill=tk.X, pady=(0, 8))
+
+        # Icono grande del módulo
+        icon_frame = tk.Frame(header, bg=module['color'], width=45, height=45)
+        icon_frame.pack(side=tk.LEFT, padx=(0, 12))
+        icon_frame.pack_propagate(False)
+
+        tk.Label(icon_frame, text=module['icon'], font=('Segoe UI', 20),
+                bg=module['color'], fg='white').pack(expand=True)
+
+        # Información del módulo
+        info_frame = tk.Frame(header, bg=self.colors['bg_card'])
+        info_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        tk.Label(info_frame, text=f"Módulo {module['id']}",
+                font=('Segoe UI', 8),
+                bg=self.colors['bg_card'],
+                fg=self.colors['text_light']).pack(anchor=tk.W)
+
+        tk.Label(info_frame, text=module['name'],
+                font=('Segoe UI', 11, 'bold'),
+                bg=self.colors['bg_card'],
+                fg=self.colors['text_dark']).pack(anchor=tk.W)
+
+        # Badge del tipo
+        type_badge = tk.Label(header, text=module['type'].upper(),
+                             font=('Segoe UI', 7, 'bold'),
+                             bg=self.colors['bg_light'],
+                             fg=self.colors['text_light'],
+                             padx=8, pady=3)
+        type_badge.pack(side=tk.RIGHT)
+
+        # Separador sutil
+        separator = tk.Frame(card_content, bg=self.colors['border'], height=1)
+        separator.pack(fill=tk.X, pady=(8, 10))
+
+        # Botón de acción mejorado
+        btn = tk.Button(card_content, text="⚙ Configurar y Ejecutar",
+                       command=lambda m=module: self.select_module(m),
+                       font=('Segoe UI', 10, 'bold'),
+                       bg=module['color'],
+                       fg='white',
+                       relief='flat',
+                       cursor='hand2',
+                       borderwidth=0,
+                       padx=15, pady=10)
+        btn.pack(fill=tk.X)
+
+        # Agregar efecto hover al botón
+        self._add_hover_effect(btn, module['color'], self._darken_color(module['color']))
+
         self.module_buttons.append(btn)
-        
+
+    def _add_hover_effect(self, button, normal_color, hover_color):
+        """Agrega efecto hover a un botón"""
+        def on_enter(e):
+            button['bg'] = hover_color
+
+        def on_leave(e):
+            button['bg'] = normal_color
+
+        button.bind('<Enter>', on_enter)
+        button.bind('<Leave>', on_leave)
+
+    def _darken_color(self, hex_color, factor=0.8):
+        """Oscurece un color hex"""
+        hex_color = hex_color.lstrip('#')
+        rgb = tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
+        darkened = tuple(int(c * factor) for c in rgb)
+        return '#{:02x}{:02x}{:02x}'.format(*darkened)
+
     def select_module(self, module):
         self.selected_module = module
         self.module_name_var.set(f"{module['icon']} {module['name']}")
@@ -214,12 +456,28 @@ class DBManager:
         
         self.param_widgets.clear()
         
-        ttk.Label(self.params_frame, text="Script cargado:", 
-                 font=('Arial', 9, 'bold')).grid(row=0, column=0, sticky=tk.W, pady=5)
-        ttk.Label(self.params_frame, text=module['script']).grid(row=0, column=1, sticky=tk.W, pady=5)
-        
-        ttk.Separator(self.params_frame, orient='horizontal').grid(row=1, column=0, columnspan=3, 
-                                                                   sticky='ew', pady=10)
+        # Información del script con mejor diseño
+        script_info = tk.Frame(self.params_frame, bg=self.colors['bg_light'],
+                              relief=tk.FLAT, borderwidth=0)
+        script_info.grid(row=0, column=0, columnspan=2, sticky='ew', pady=(0, 12), padx=0)
+
+        tk.Label(script_info, text="📄 Script:",
+                font=('Segoe UI', 9, 'bold'),
+                bg=self.colors['bg_light'],
+                fg=self.colors['text_dark'],
+                padx=10, pady=8).pack(side=tk.LEFT)
+
+        tk.Label(script_info, text=module['script'],
+                font=('Segoe UI', 8),
+                bg=self.colors['bg_light'],
+                fg=self.colors['text_light'],
+                padx=5, pady=8).pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+        # Separador decorativo
+        sep_frame = tk.Frame(self.params_frame, bg=self.colors['bg_card'])
+        sep_frame.grid(row=1, column=0, columnspan=3, sticky='ew', pady=(0, 15))
+
+        tk.Frame(sep_frame, bg=self.colors['border'], height=2).pack(fill=tk.X)
         
         param_labels = {
             "ruta_plantilla_excel": "Ruta Plantilla Excel:",
@@ -239,34 +497,65 @@ class DBManager:
         row = 2
         for param in module['params']:
             label_text = param_labels.get(param, param + ":")
-            ttk.Label(self.params_frame, text=label_text, 
-                     font=('Arial', 9)).grid(row=row, column=0, sticky=tk.W, pady=5, padx=(0, 10))
-            
+
+            # Label del parámetro con estilo mejorado
+            tk.Label(self.params_frame, text=label_text,
+                    font=('Segoe UI', 9, 'bold'),
+                    bg=self.colors['bg_card'],
+                    fg=self.colors['text_dark']).grid(row=row, column=0, sticky=tk.W,
+                                                     pady=8, padx=(0, 15))
+
             if 'ruta' in param.lower():
-                frame = ttk.Frame(self.params_frame)
-                frame.grid(row=row, column=1, sticky=(tk.W, tk.E), pady=5)
-                
+                frame = tk.Frame(self.params_frame, bg=self.colors['bg_card'])
+                frame.grid(row=row, column=1, sticky=(tk.W, tk.E), pady=8)
+
                 var = tk.StringVar()
-                entry = ttk.Entry(frame, textvariable=var, width=50)
-                entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
-                
+                entry = tk.Entry(frame, textvariable=var,
+                               font=('Segoe UI', 9),
+                               bg='white',
+                               fg=self.colors['text_dark'],
+                               relief=tk.SOLID,
+                               borderwidth=1,
+                               highlightthickness=0)
+                entry.pack(side=tk.LEFT, fill=tk.X, expand=True, ipady=4)
+
                 is_input = 'plantilla' in param.lower() or ('ddl' in param.lower() and 'salida' not in param.lower())
-                btn = ttk.Button(frame, text="", width=3,
-                               command=lambda v=var, p=param: self.browse_path(v, p))
+                btn = tk.Button(frame, text="📁",
+                              font=('Segoe UI', 10),
+                              command=lambda v=var, p=param: self.browse_path(v, p),
+                              bg=self.colors['secondary'],
+                              fg='white',
+                              relief='flat',
+                              cursor='hand2',
+                              borderwidth=0,
+                              padx=10, pady=4)
                 btn.pack(side=tk.LEFT, padx=(5, 0))
-                
+                self._add_hover_effect(btn, self.colors['secondary'], '#2980b9')
+
                 self.param_widgets[param] = var
             elif param == 'password':
                 var = tk.StringVar()
-                entry = ttk.Entry(self.params_frame, textvariable=var, show="*", width=50)
-                entry.grid(row=row, column=1, sticky=(tk.W, tk.E), pady=5)
+                entry = tk.Entry(self.params_frame, textvariable=var, show="●",
+                               font=('Segoe UI', 9),
+                               bg='white',
+                               fg=self.colors['text_dark'],
+                               relief=tk.SOLID,
+                               borderwidth=1,
+                               highlightthickness=0)
+                entry.grid(row=row, column=1, sticky=(tk.W, tk.E), pady=8, ipady=4)
                 self.param_widgets[param] = var
             else:
                 var = tk.StringVar()
-                entry = ttk.Entry(self.params_frame, textvariable=var, width=50)
-                entry.grid(row=row, column=1, sticky=(tk.W, tk.E), pady=5)
+                entry = tk.Entry(self.params_frame, textvariable=var,
+                               font=('Segoe UI', 9),
+                               bg='white',
+                               fg=self.colors['text_dark'],
+                               relief=tk.SOLID,
+                               borderwidth=1,
+                               highlightthickness=0)
+                entry.grid(row=row, column=1, sticky=(tk.W, tk.E), pady=8, ipady=4)
                 self.param_widgets[param] = var
-            
+
             row += 1
         
         self.params_frame.columnconfigure(1, weight=1)
