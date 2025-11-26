@@ -624,7 +624,7 @@ def generar_diccionario_rtf(host, port, database, user, password, schema, output
                     t += 1
             else:
                 writer.write("\\i No aplica.\\i0\\par\n")
-            writer.write("\\par\\page\n")
+                
            
 
 
