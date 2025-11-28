@@ -84,5 +84,35 @@
       "password": "sigloc_ab01$",
       "ruta_salida_ddl_completo": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/ddl_final.sql"
     }
+  },
+  {
+    "timestamp": "2025-11-28 18:46:12",
+    "module_id": 2,
+    "module_name": "VALIDAR NOMENCLATURA",
+    "status": "success",
+    "duration": 0.689121,
+    "params": {
+      "host": "localhost",
+      "puerto": "5432",
+      "bd": "sigloc_dev",
+      "usuario": "sigloc",
+      "password": "sigloc_ab01$",
+      "ruta_salida_ddl_completo": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/ddl_final.sql"
+    }
+  },
+  {
+    "timestamp": "2025-11-28 18:50:39",
+    "module_id": 2,
+    "module_name": "VALIDAR NOMENCLATURA",
+    "status": "success",
+    "duration": 0.786117,
+    "params": {
+      "host": "localhost",
+      "puerto": "5432",
+      "bd": "sigloc_dev",
+      "usuario": "sigloc",
+      "password": "sigloc_ab01$",
+      "ruta_salida_ddl_completo": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/ddl_final.sql"
+    }
   }
 ]

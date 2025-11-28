@@ -506,54 +506,551 @@ class ValidadorDDL:
         return len(self.errores) == 0
     
     def generar_reporte(self, archivo_salida: str):
-        with open(archivo_salida, 'w', encoding='utf-8') as f:
-            f.write("=" * 100 + "\n")
-            f.write("REPORTE DE VALIDACIÓN DE NOMENCLATURA - DDL PostgreSQL\n")
-            f.write("=" * 100 + "\n\n")
-            
-            f.write(f"Archivo DDL analizado: {self.ddl_file}\n")
-            f.write(f"Reglas aplicadas: {self.reglas_json}\n")
-            f.write(f"Total de errores críticos: {len(self.errores)}\n")
-            f.write(f"Total de advertencias: {len(self.warnings)}\n\n")
-            
-            if self.errores:
-                f.write("=" * 100 + "\n")
-                f.write("ERRORES\n")
-                f.write("=" * 100 + "\n\n")
-                
-                errores_por_tipo = defaultdict(list)
-                for error in self.errores:
-                    errores_por_tipo[error.tipo_objeto].append(error)
-                
-                for tipo_objeto in sorted(errores_por_tipo.keys()):
-                    errores = errores_por_tipo[tipo_objeto]
-                    f.write(f"\n### {tipo_objeto} ({len(errores)} errores)\n\n")
-                    
-                    for idx, error in enumerate(errores, 1):
-                        f.write(f"{idx}. Línea {error.linea} | {error.tipo_error}\n")
-                        f.write(f"   Objeto: {error.nombre_objeto}\n")
-                        f.write(f"   Problema: {error.mensaje}\n")
-                        f.write(f"   Valor actual: '{error.valor_actual}'\n")
-                        if error.valor_sugerido:
-                            f.write(f"    Sugerencia: '{error.valor_sugerido}'\n")
-                        f.write("\n")
-            
-            if self.warnings:
-                f.write("=" * 100 + "\n")
-                f.write("ADVERTENCIAS (revisar)\n")
-                f.write("=" * 100 + "\n\n")
-                
-                for idx, warning in enumerate(self.warnings, 1):
-                    f.write(f"{idx}. Línea {warning.linea} | {warning.tipo_objeto}\n")
-                    f.write(f"   Objeto: {warning.nombre_objeto}\n")
-                    f.write(f"   Detalle: {warning.mensaje}\n")
-                    f.write(f"   Valor: '{warning.valor_actual}'\n")
-                    f.write("\n")
-            
-            if not self.errores and not self.warnings:
-                f.write("\n" + "=" * 100 + "\n")
-                f.write(" VALIDACIÓN EXITOSA - No se encontraron errores ni advertencias\n")
-                f.write("=" * 100 + "\n")
+        """Genera reporte en formato HTML profesional"""
+        from datetime import datetime
+
+        # Generar solo reporte HTML (eliminar extensión .txt y usar .html)
+        archivo_html = archivo_salida.replace('.txt', '.html')
+
+        total_errores = len(self.errores)
+        total_warnings = len(self.warnings)
+        total_problemas = total_errores + total_warnings
+
+        # Calcular estadísticas por tipo
+        errores_por_tipo = defaultdict(list)
+        for error in self.errores:
+            errores_por_tipo[error.tipo_objeto].append(error)
+
+        warnings_por_tipo = defaultdict(list)
+        for warning in self.warnings:
+            warnings_por_tipo[warning.tipo_objeto].append(warning)
+
+        estado = "✓ EXITOSA" if total_problemas == 0 else "✗ CON ERRORES"
+        color_estado = "#27ae60" if total_problemas == 0 else "#e74c3c"
+
+        html = f"""<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte de Validación de Nomenclatura</title>
+    <style>
+        * {{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }}
+
+        body {{
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            line-height: 1.6;
+        }}
+
+        .container {{
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }}
+
+        .header {{
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }}
+
+        .header h1 {{
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }}
+
+        .header p {{
+            font-size: 1.1em;
+            opacity: 0.9;
+        }}
+
+        .summary {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+        }}
+
+        .summary-card {{
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-left: 5px solid #3498db;
+            transition: transform 0.2s;
+        }}
+
+        .summary-card:hover {{
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0,0,0,0.15);
+        }}
+
+        .summary-card.error {{
+            border-left-color: #e74c3c;
+        }}
+
+        .summary-card.warning {{
+            border-left-color: #f39c12;
+        }}
+
+        .summary-card.success {{
+            border-left-color: #27ae60;
+        }}
+
+        .summary-card h3 {{
+            color: #7f8c8d;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }}
+
+        .summary-card .value {{
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #2c3e50;
+        }}
+
+        .status {{
+            padding: 30px;
+            text-align: center;
+            background: {color_estado};
+            color: white;
+        }}
+
+        .status h2 {{
+            font-size: 2em;
+            margin-bottom: 10px;
+        }}
+
+        .content {{
+            padding: 30px;
+        }}
+
+        .info-table {{
+            width: 100%;
+            margin-bottom: 30px;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }}
+
+        .info-table th {{
+            background: #34495e;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }}
+
+        .info-table td {{
+            padding: 12px 15px;
+            border-bottom: 1px solid #ecf0f1;
+        }}
+
+        .info-table tr:last-child td {{
+            border-bottom: none;
+        }}
+
+        .section {{
+            margin-bottom: 40px;
+        }}
+
+        .section-title {{
+            font-size: 1.8em;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #3498db;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }}
+
+        .section-title.error {{
+            border-bottom-color: #e74c3c;
+        }}
+
+        .section-title.warning {{
+            border-bottom-color: #f39c12;
+        }}
+
+        .badge {{
+            background: #3498db;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.7em;
+            font-weight: bold;
+        }}
+
+        .badge.error {{
+            background: #e74c3c;
+        }}
+
+        .badge.warning {{
+            background: #f39c12;
+        }}
+
+        .subsection {{
+            margin-bottom: 30px;
+        }}
+
+        .subsection-title {{
+            background: #ecf0f1;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            color: #34495e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }}
+
+        .error-item, .warning-item {{
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-left: 4px solid #e74c3c;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.2s;
+        }}
+
+        .error-item:hover, .warning-item:hover {{
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateX(5px);
+        }}
+
+        .warning-item {{
+            border-left-color: #f39c12;
+        }}
+
+        .error-header {{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }}
+
+        .error-title {{
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 1.1em;
+        }}
+
+        .line-number {{
+            background: #34495e;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            font-family: 'Courier New', monospace;
+        }}
+
+        .error-details {{
+            margin-top: 12px;
+        }}
+
+        .detail-row {{
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 10px;
+            margin-bottom: 8px;
+        }}
+
+        .detail-label {{
+            color: #7f8c8d;
+            font-weight: 600;
+        }}
+
+        .detail-value {{
+            color: #34495e;
+        }}
+
+        .code {{
+            background: #f8f9fa;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            border: 1px solid #e0e0e0;
+        }}
+
+        .suggestion {{
+            background: #d5f4e6;
+            color: #27ae60;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            border: 1px solid #a9dfbf;
+        }}
+
+        .success-message {{
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            border-radius: 10px;
+            font-size: 1.3em;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }}
+
+        .footer {{
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 0.9em;
+        }}
+
+        .chart-container {{
+            margin: 30px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }}
+
+        .stats-grid {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }}
+
+        .stat-item {{
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }}
+
+        .stat-number {{
+            font-size: 2em;
+            font-weight: bold;
+            color: #3498db;
+        }}
+
+        .stat-label {{
+            color: #7f8c8d;
+            margin-top: 5px;
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Reporte de Validación de Nomenclatura</h1>
+            <p>Análisis DDL PostgreSQL - {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}</p>
+        </div>
+
+        <div class="summary">
+            <div class="summary-card {'error' if total_errores > 0 else 'success'}">
+                <h3>Errores Críticos</h3>
+                <div class="value" style="color: {'#e74c3c' if total_errores > 0 else '#27ae60'};">{total_errores}</div>
+            </div>
+            <div class="summary-card warning">
+                <h3>Advertencias</h3>
+                <div class="value" style="color: #f39c12;">{total_warnings}</div>
+            </div>
+            <div class="summary-card">
+                <h3>Total Problemas</h3>
+                <div class="value">{total_problemas}</div>
+            </div>
+        </div>
+
+        <div class="status">
+            <h2>{estado}</h2>
+            <p>Validación de nomenclatura completada</p>
+        </div>
+
+        <div class="content">
+            <table class="info-table">
+                <tr>
+                    <th>Archivo DDL</th>
+                    <td>{self.ddl_file}</td>
+                </tr>
+                <tr>
+                    <th>Archivo de Reglas</th>
+                    <td>{self.reglas_json}</td>
+                </tr>
+                <tr>
+                    <th>Fecha de Análisis</th>
+                    <td>{datetime.now().strftime('%d de %B de %Y, %H:%M:%S')}</td>
+                </tr>
+            </table>
+"""
+
+        # Sección de errores
+        if self.errores:
+            html += f"""
+            <div class="section">
+                <h2 class="section-title error">
+                    Errores Críticos
+                    <span class="badge error">{total_errores}</span>
+                </h2>
+"""
+
+            for tipo_objeto in sorted(errores_por_tipo.keys()):
+                errores = errores_por_tipo[tipo_objeto]
+                html += f"""
+                <div class="subsection">
+                    <div class="subsection-title">
+                        <span>{tipo_objeto}</span>
+                        <span class="badge error">{len(errores)} error{'es' if len(errores) > 1 else ''}</span>
+                    </div>
+"""
+
+                for idx, error in enumerate(errores, 1):
+                    html += f"""
+                    <div class="error-item">
+                        <div class="error-header">
+                            <div class="error-title">#{idx} - {error.tipo_error}</div>
+                            <div class="line-number">Línea {error.linea}</div>
+                        </div>
+                        <div class="error-details">
+                            <div class="detail-row">
+                                <div class="detail-label">Objeto:</div>
+                                <div class="detail-value"><strong>{error.nombre_objeto}</strong></div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Problema:</div>
+                                <div class="detail-value">{error.mensaje}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Valor Actual:</div>
+                                <div class="detail-value"><span class="code">{error.valor_actual}</span></div>
+                            </div>
+"""
+                    if error.valor_sugerido:
+                        html += f"""
+                            <div class="detail-row">
+                                <div class="detail-label">✓ Sugerencia:</div>
+                                <div class="detail-value"><span class="suggestion">{error.valor_sugerido}</span></div>
+                            </div>
+"""
+                    html += """
+                        </div>
+                    </div>
+"""
+
+                html += """
+                </div>
+"""
+
+            html += """
+            </div>
+"""
+
+        # Sección de advertencias
+        if self.warnings:
+            html += f"""
+            <div class="section">
+                <h2 class="section-title warning">
+                    Advertencias
+                    <span class="badge warning">{total_warnings}</span>
+                </h2>
+"""
+
+            for idx, warning in enumerate(self.warnings, 1):
+                html += f"""
+                <div class="warning-item">
+                    <div class="error-header">
+                        <div class="error-title">#{idx} - {warning.tipo_objeto}</div>
+                        <div class="line-number">Línea {warning.linea}</div>
+                    </div>
+                    <div class="error-details">
+                        <div class="detail-row">
+                            <div class="detail-label">Objeto:</div>
+                            <div class="detail-value"><strong>{warning.nombre_objeto}</strong></div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Detalle:</div>
+                            <div class="detail-value">{warning.mensaje}</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Valor:</div>
+                            <div class="detail-value"><span class="code">{warning.valor_actual}</span></div>
+                        </div>
+                    </div>
+                </div>
+"""
+
+            html += """
+            </div>
+"""
+
+        # Mensaje de éxito
+        if not self.errores and not self.warnings:
+            html += """
+            <div class="success-message">
+                <h2>✅ ¡Validación Exitosa!</h2>
+                <p>No se encontraron errores ni advertencias en el análisis de nomenclatura.</p>
+                <p>Todos los objetos cumplen con las reglas establecidas.</p>
+            </div>
+"""
+
+        # Estadísticas por tipo de objeto
+        if errores_por_tipo or warnings_por_tipo:
+            html += """
+            <div class="chart-container">
+                <h3 style="margin-bottom: 15px; color: #2c3e50;">Estadísticas por Tipo de Objeto</h3>
+                <div class="stats-grid">
+"""
+
+            todos_tipos = set(list(errores_por_tipo.keys()) + list(warnings_por_tipo.keys()))
+            for tipo in sorted(todos_tipos):
+                num_errores = len(errores_por_tipo.get(tipo, []))
+                num_warnings = len(warnings_por_tipo.get(tipo, []))
+                total = num_errores + num_warnings
+
+                html += f"""
+                    <div class="stat-item">
+                        <div class="stat-number">{total}</div>
+                        <div class="stat-label">{tipo}</div>
+                        <div style="font-size: 0.85em; color: #95a5a6; margin-top: 5px;">
+                            {num_errores} errores, {num_warnings} advertencias
+                        </div>
+                    </div>
+"""
+
+            html += """
+                </div>
+            </div>
+"""
+
+        html += f"""
+        </div>
+
+        <div class="footer">
+            <p>📄 Reporte generado automáticamente por DB Manager</p>
+            <p style="margin-top: 10px; opacity: 0.8;">Arquitectura de Base de Datos - {datetime.now().year}</p>
+        </div>
+    </div>
+</body>
+</html>
+"""
+
+        with open(archivo_html, 'w', encoding='utf-8') as f:
+            f.write(html)
+
+        print(f"✓ Reporte HTML generado: {archivo_html}")
 
 
 
