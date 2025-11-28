@@ -266,7 +266,19 @@ class ValidadorDDL:
         columna_upper = columna.upper()
         
         max_length = reglas_columna.get('max_length', 30)
+        pk_rules = reglas_columna.get('pk', {})
+        sufijo_pk = pk_rules.get('sufijo_pk', '_PK')
         if len(columna) > max_length:
+            valor_sugerido = None
+            # Si el nombre ya trae el sufijo de PK, recortamos respetando ese sufijo
+            if sufijo_pk and columna_upper.endswith(sufijo_pk.upper()):
+                sufijo_real = columna[-len(sufijo_pk):]
+                longitud_base = max_length - len(sufijo_pk)
+                base_recortada = columna[:-len(sufijo_pk)][:max(longitud_base, 0)]
+                valor_sugerido = f"{base_recortada}{sufijo_real}"
+            else:
+                valor_sugerido = columna[:max_length]
+
             self.errores.append(Error(
                 linea=linea,
                 tipo_objeto='COLUMNA',
@@ -274,7 +286,7 @@ class ValidadorDDL:
                 tipo_error='LONGITUD',
                 mensaje=f"Nombre de columna demasiado largo ({len(columna)} caracteres). Máximo: {max_length}",
                 valor_actual=columna,
-                valor_sugerido=columna[:max_length]
+                valor_sugerido=valor_sugerido
             ))
         
         prefijo_esperado = self.sugerir_prefijo_columna(tipo_dato)

@@ -24,6 +24,8 @@ class DBManager:
         self.config_file = str(self.data_dir / "db_manager_config.json")
         self.history_file = str(self.data_dir / "execution_history.json")
         self.config = self.load_config()
+        # Valores globales para reutilizar parámetros entre módulos (host, puerto, etc.)
+        self.global_params = self.config.get('_global_params', {})
         self.current_process = None
         
         self.setup_ui()
@@ -550,17 +552,20 @@ class DBManager:
                 frame.grid(row=row, column=1, sticky=(tk.W, tk.E), pady=8)
 
                 var = tk.StringVar()
-                entry = tk.Entry(frame, textvariable=var,
-                               font=('Segoe UI', 9),
-                               bg='white',
-                               fg=self.colors['text_dark'],
-                               relief=tk.SOLID,
-                               borderwidth=1,
-                               highlightthickness=0)
+
+                # Obtener historial de valores para este parámetro
+                param_history = self.config.get(f'_history_{param}', [])
+
+                # Usar Combobox para mostrar sugerencias
+                entry = ttk.Combobox(frame, textvariable=var,
+                                    font=('Segoe UI', 9),
+                                    values=param_history)
                 entry.pack(side=tk.LEFT, fill=tk.X, expand=True, ipady=3)
 
                 is_input = 'plantilla' in param.lower() or ('ddl' in param.lower() and 'salida' not in param.lower())
-                btn = tk.Button(frame, text="📁",
+                # Icono apropiado según el tipo de acción
+                icon = "📁" if is_input else "💾"
+                btn = tk.Button(frame, text=icon,
                               font=('Segoe UI', 10),
                               command=lambda v=var, p=param: self.browse_path(v, p),
                               bg=self.colors['secondary'],
@@ -575,6 +580,8 @@ class DBManager:
                 self.param_widgets[param] = var
             elif param == 'password':
                 var = tk.StringVar()
+
+                # Para password, usar Entry normal (sin mostrar valores previos por seguridad)
                 entry = tk.Entry(self.params_frame, textvariable=var, show="●",
                                font=('Segoe UI', 9),
                                bg='white',
@@ -586,15 +593,20 @@ class DBManager:
                 self.param_widgets[param] = var
             else:
                 var = tk.StringVar()
-                entry = tk.Entry(self.params_frame, textvariable=var,
-                               font=('Segoe UI', 9),
-                               bg='white',
-                               fg=self.colors['text_dark'],
-                               relief=tk.SOLID,
-                               borderwidth=1,
-                               highlightthickness=0)
+
+                # Obtener historial de valores para este parámetro
+                param_history = self.config.get(f'_history_{param}', [])
+
+                # Usar Combobox para mostrar sugerencias
+                entry = ttk.Combobox(self.params_frame, textvariable=var,
+                                    font=('Segoe UI', 9),
+                                    values=param_history)
                 entry.grid(row=row, column=1, sticky=(tk.W, tk.E), pady=8, ipady=3)
                 self.param_widgets[param] = var
+
+            # Precargar con el último valor usado si existe (excepto password por seguridad)
+            if param in self.global_params and param != 'password':
+                self.param_widgets[param].set(self.global_params[param])
 
             row += 1
         
@@ -646,24 +658,48 @@ class DBManager:
         if not hasattr(self, 'selected_module'):
             messagebox.showwarning("Advertencia", "No hay modulo seleccionado")
             return
-        
+
         module_config = {}
         for param, widget in self.param_widgets.items():
-            module_config[param] = widget.get()
-        
+            value = widget.get().strip()
+            module_config[param] = value
+
+            # Guardar como valor global reutilizable si no está vacío (excepto password)
+            if value and param != 'password':
+                self.global_params[param] = value
+
+                # Actualizar historial de valores para este parámetro (excepto password)
+                history_key = f'_history_{param}'
+                param_history = self.config.get(history_key, [])
+
+                # Agregar el nuevo valor si no existe ya en el historial
+                if value not in param_history:
+                    param_history.append(value)
+                    # Mantener solo los últimos 10 valores
+                    if len(param_history) > 10:
+                        param_history = param_history[-10:]
+                    self.config[history_key] = param_history
+                else:
+                    # Si el valor ya existe, moverlo al final (más reciente)
+                    param_history.remove(value)
+                    param_history.append(value)
+                    self.config[history_key] = param_history
+
         module_config_key = f"module_{self.selected_module['id']}"
         self.config[module_config_key] = module_config
+        # Persistir mapa global de parámetros reutilizables
+        self.config['_global_params'] = self.global_params
         self.save_config()
-        
+
         self.log_message(" Configuracion guardada correctamente", "success")
         
     def execute_current_module(self):
         if not hasattr(self, 'selected_module'):
             messagebox.showwarning("Advertencia", "Selecciona un modulo primero")
             return
-        
+
         module = self.selected_module
-        
+
         params_values = {}
         for param, widget in self.param_widgets.items():
             value = widget.get().strip()
@@ -671,17 +707,38 @@ class DBManager:
                 messagebox.showerror("Error", f"El parametro '{param}' es obligatorio")
                 return
             params_values[param] = value
-        
+
+            # Guardar valores en historial automáticamente al ejecutar (excepto password)
+            if param != 'password':
+                self.global_params[param] = value
+
+                history_key = f'_history_{param}'
+                param_history = self.config.get(history_key, [])
+
+                if value not in param_history:
+                    param_history.append(value)
+                    if len(param_history) > 10:
+                        param_history = param_history[-10:]
+                    self.config[history_key] = param_history
+                else:
+                    param_history.remove(value)
+                    param_history.append(value)
+                    self.config[history_key] = param_history
+
+        # Guardar la configuración actualizada
+        self.config['_global_params'] = self.global_params
+        self.save_config()
+
         if not os.path.exists(module['script']):
             messagebox.showerror("Error", f"Script no encontrado: {module['script']}")
             return
-        
+
         self.log_message(f"\n{'='*70}", "info")
         self.log_message(f" Ejecutando: {module['name']}", "module")
         self.log_message(f"Hora: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", "info")
         self.log_message(f"{'='*70}\n", "info")
-        
-        threading.Thread(target=self._execute_module_thread, 
+
+        threading.Thread(target=self._execute_module_thread,
                         args=(module, params_values), daemon=True).start()
         
     def _execute_module_thread(self, module, params_values):
