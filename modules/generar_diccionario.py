@@ -1,6 +1,6 @@
 import sys
-import psycopg2
 from pathlib import Path
+import psycopg2
 
 # Constantes de configuración RTF
 ESQUEMAS_HEADERS = ["ESQUEMA", "DESCRIPCION"]

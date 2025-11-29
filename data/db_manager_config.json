@@ -25,12 +25,25 @@
     "password": "sigloc_ab01$",
     "ruta_salida_ddl_completo": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/ddl_final.sql",
     "esquema": "sigloc",
-    "ruta_salida_rtf": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/diccionario_sigloc.rtf"
+    "ruta_salida_rtf": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/diccionario_sigloc.rtf",
+    "ruta_ddl_completo": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/ddl_final.sql",
+    "ruta_plantilla_excel": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/resources/Plantilla_Modelo.xlsx",
+    "ruta_salida_ddl_base": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/ddl_inicial.sql"
   },
   "_history_esquema": [
     "sigloc"
   ],
   "_history_ruta_salida_rtf": [
     "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/diccionario_sigloc.rtf"
+  ],
+  "_history_ruta_ddl_completo": [
+    "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/ddl_final.sql"
+  ],
+  "_history_ruta_plantilla_excel": [
+    "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/resources/Plantilla_Modelo.xlsx"
+  ],
+  "_history_ruta_salida_ddl_base": [
+    "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/resources/ddl_inicial.sql",
+    "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/ddl_inicial.sql"
   ]
 }
