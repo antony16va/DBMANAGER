@@ -746,9 +746,13 @@ class DBManager:
             cmd_args = []
             for param in module['params']:
                 cmd_args.append(params_values[param])
-            
+
             if module['type'] == 'python':
-                cmd = ['python', module['script']] + cmd_args
+                # Usar el mismo Python que está ejecutando este programa (sys.executable)
+                # Esto garantiza que se usen las mismas librerías instaladas
+                import sys
+                python_exe = sys.executable
+                cmd = [python_exe, module['script']] + cmd_args
             elif module['type'] == 'groovy':
                 # Try to find groovy executable; on Windows this may be a .bat/.cmd
                 groovy_exe = shutil.which('groovy')
@@ -862,7 +866,8 @@ class DBManager:
         
     def _check_requirements_thread(self):
         checks = {}
-        
+
+        # Verificar Python
         try:
             result = subprocess.run(['python', '--version'], capture_output=True, text=True, timeout=5)
             if result.returncode == 0:
@@ -874,38 +879,72 @@ class DBManager:
         except:
             self.log_message(f" Python no encontrado", "error")
             checks['python'] = False
-        
+
+        # Verificar librerías de Python
+        if checks.get('python'):
+            self.log_message(f"\n Verificando librerias de Python...", "info")
+
+            # Verificar psycopg2
+            try:
+                result = subprocess.run(
+                    ['python', '-c', 'import psycopg2; print(psycopg2.__version__)'],
+                    capture_output=True,
+                    text=True,
+                    timeout=5
+                )
+                if result.returncode == 0:
+                    self.log_message(f" psycopg2: {result.stdout.strip()}", "success")
+                    checks['psycopg2'] = True
+                else:
+                    self.log_message(f" psycopg2 NO instalado (requerido para Modulo 3)", "error")
+                    self.log_message(f"   Instalar con: pip install psycopg2-binary", "warning")
+                    checks['psycopg2'] = False
+            except:
+                self.log_message(f" psycopg2 NO instalado (requerido para Modulo 3)", "error")
+                self.log_message(f"   Instalar con: pip install psycopg2-binary", "warning")
+                checks['psycopg2'] = False
+
+        # Verificar Groovy
         try:
             result = subprocess.run(['groovy', '--version'], capture_output=True, text=True, timeout=5)
             if result.returncode == 0:
                 version_line = result.stdout.split('\n')[0]
-                self.log_message(f" Groovy: {version_line}", "success")
+                self.log_message(f"\n Groovy: {version_line}", "success")
                 checks['groovy'] = True
             else:
-                self.log_message(f" Groovy no encontrado (requerido para Modulo 3)", "warning")
+                self.log_message(f"\n Groovy no encontrado (opcional)", "warning")
                 checks['groovy'] = False
         except:
-            self.log_message(f" Groovy no encontrado (requerido para Modulo 3)", "warning")
+            self.log_message(f"\n Groovy no encontrado (opcional)", "warning")
             checks['groovy'] = False
-        
+
+        # Verificar PostgreSQL
         try:
             result = subprocess.run(['pg_dump', '--version'], capture_output=True, text=True, timeout=5)
             if result.returncode == 0:
                 self.log_message(f" PostgreSQL: {result.stdout.strip()}", "success")
                 checks['postgresql'] = True
             else:
-                self.log_message(f" pg_dump no encontrado", "warning")
+                self.log_message(f" pg_dump no encontrado (requerido para Modulo 2)", "warning")
                 checks['postgresql'] = False
         except:
-            self.log_message(f" pg_dump no encontrado", "warning")
+            self.log_message(f" pg_dump no encontrado (requerido para Modulo 2)", "warning")
             checks['postgresql'] = False
-        
+
         self.log_message(f"\n{'='*70}\n", "info")
-        
-        if checks.get('python') and checks.get('groovy'):
-            self.log_message(" Todos los requisitos principales estan instalados", "success")
+
+        # Resumen final
+        requisitos_criticos = checks.get('python') and checks.get('psycopg2')
+
+        if requisitos_criticos:
+            self.log_message(" Todos los requisitos criticos estan instalados", "success")
         else:
-            self.log_message(" Algunos requisitos faltan. Revisa los mensajes arriba.", "warning")
+            self.log_message(" FALTAN requisitos criticos. Revisa los mensajes arriba.", "error")
+
+        if not checks.get('groovy'):
+            self.log_message(" Nota: Groovy es opcional", "info")
+        if not checks.get('postgresql'):
+            self.log_message(" Nota: pg_dump es necesario para Modulo 2", "warning")
             
     def show_history(self):
         history_window = tk.Toplevel(self.root)

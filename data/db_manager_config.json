@@ -23,6 +23,14 @@
     "bd": "sigloc_dev",
     "usuario": "sigloc",
     "password": "sigloc_ab01$",
-    "ruta_salida_ddl_completo": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/ddl_final.sql"
-  }
+    "ruta_salida_ddl_completo": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/ddl_final.sql",
+    "esquema": "sigloc",
+    "ruta_salida_rtf": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/diccionario_sigloc.rtf"
+  },
+  "_history_esquema": [
+    "sigloc"
+  ],
+  "_history_ruta_salida_rtf": [
+    "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/diccionario_sigloc.rtf"
+  ]
 }
