@@ -6,12 +6,12 @@
     "5432"
   ],
   "_history_bd": [
-    "sigloc_dev",
-    "gemma"
+    "gemma",
+    "sigloc_dev"
   ],
   "_history_usuario": [
-    "sigloc",
-    "postgres"
+    "postgres",
+    "sigloc"
   ],
   "_history_password": [
     "sigloc_ab01$"
@@ -23,12 +23,12 @@
   "_global_params": {
     "host": "localhost",
     "puerto": "5432",
-    "bd": "gemma",
-    "usuario": "postgres",
+    "bd": "sigloc_dev",
+    "usuario": "sigloc",
     "password": "sigloc_ab01$",
     "ruta_salida_ddl_completo": "C:/Users/Antony/Desktop/Nueva carpeta (2)/PRACTICAS FINAL/DBMANAGER/ddl_final.sql",
     "esquema": "sigloc",
-    "ruta_salida_rtf": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/diccionario_sigloc.rtf",
+    "ruta_salida_rtf": "C:/Users/Antony/Desktop/Nueva carpeta (2)/PRACTICAS FINAL/DBMANAGER/sigloc.rtf",
     "ruta_ddl_completo": "C:/Users/Antony/Desktop/Nueva carpeta (2)/PRACTICAS FINAL/DBMANAGER/dump.sql",
     "ruta_plantilla_excel": "C:/Users/Antony/Desktop/Nueva carpeta (2)/PRACTICAS FINAL/DBMANAGER/resources/Plantilla_Modelo.xlsx",
     "ruta_salida_ddl_base": "C:/Users/Antony/Desktop/Nueva carpeta (2)/PRACTICAS FINAL/DBMANAGER/ddl_inicial.sql",
@@ -39,7 +39,8 @@
     "sigloc"
   ],
   "_history_ruta_salida_rtf": [
-    "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/diccionario_sigloc.rtf"
+    "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/diccionario_sigloc.rtf",
+    "C:/Users/Antony/Desktop/Nueva carpeta (2)/PRACTICAS FINAL/DBMANAGER/sigloc.rtf"
   ],
   "_history_ruta_ddl_completo": [
     "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/ddl_final.sql",

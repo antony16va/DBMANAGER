@@ -39,8 +39,8 @@ TYPES_WIDTHS = [450, 3000, 5500]
 DBLINKS_HEADERS = ["N", "Dblink / Foreign Server", "Descripcion"]
 DBLINKS_WIDTHS = [450, 3000, 5500]
 
-T_FORANEA_HEADERS = ["N", "Campo", "Tipo de Dato", "Nulos", "PK", "FK", "Descripcion", "Valores permitidos"]
-T_FORANEA_WIDTHS = [450, 2100, 1300, 750, 470, 470, 2100, 2300]
+T_FORANEA_HEADERS = ["N", "Tabla Foránea", "Descripcion"]
+T_FORANEA_WIDTHS = [450, 3000, 5500]
 
 SINONIMOS_HEADERS = ["N", "Sinónimo", "Descripcion"]
 SINONIMOS_WIDTHS = [450, 3000, 5500]
@@ -349,7 +349,7 @@ def obtener_funciones_con_comentarios(cursor, schema):
 def obtener_vistas_con_comentarios(cursor, schema):
     """Obtiene vistas con sus comentarios"""
     sql = """
-    SELECT 
+    SELECT
         c.relname AS vista,
         obj_description(c.oid) AS comentario
     FROM pg_class c
@@ -364,6 +364,109 @@ def obtener_vistas_con_comentarios(cursor, schema):
     except Exception as e:
         print(f"Error al obtener vistas: {e}")
         return {}
+
+def obtener_triggers_con_comentarios(cursor, schema):
+    """Obtiene triggers con sus comentarios"""
+    sql = """
+    SELECT
+        t.tgname AS trigger,
+        obj_description(t.oid, 'pg_trigger') AS comentario
+    FROM pg_trigger t
+    JOIN pg_class c ON c.oid = t.tgrelid
+    JOIN pg_namespace n ON n.oid = c.relnamespace
+    WHERE n.nspname = %s
+      AND NOT t.tgisinternal
+    ORDER BY trigger;
+    """
+    try:
+        cursor.execute(sql, (schema,))
+        return {row[0]: row[1] or '' for row in cursor.fetchall()}
+    except Exception as e:
+        print(f"Error al obtener triggers: {e}")
+        return {}
+
+def obtener_funciones_triggers_con_comentarios(cursor, schema):
+    """Obtiene funciones trigger con sus comentarios"""
+    sql = """
+    SELECT
+        p.proname AS funcion_trigger,
+        obj_description(p.oid, 'pg_proc') AS comentario
+    FROM pg_proc p
+    JOIN pg_namespace n ON n.oid = p.pronamespace
+    WHERE n.nspname = %s
+      AND p.prorettype = (SELECT oid FROM pg_type WHERE typname = 'trigger')
+    ORDER BY funcion_trigger;
+    """
+    try:
+        cursor.execute(sql, (schema,))
+        return {row[0]: row[1] or '' for row in cursor.fetchall()}
+    except Exception as e:
+        print(f"Error al obtener funciones trigger: {e}")
+        return {}
+
+def obtener_types_con_comentarios(cursor, schema):
+    """Obtiene tipos personalizados creados por el usuario (compuestos, enums, dominios y rangos)"""
+    sql = """
+    SELECT
+        t.typname AS type,
+        obj_description(t.oid, 'pg_type') AS comentario
+    FROM pg_type t
+    JOIN pg_namespace n ON n.oid = t.typnamespace
+    WHERE n.nspname = %s
+      AND t.typtype IN ('c', 'e', 'd', 'r')  -- c=composite, e=enum, d=domain, r=range
+      AND NOT EXISTS (
+          SELECT 1 FROM pg_class c
+          WHERE c.reltype = t.oid AND c.relkind IN ('r', 'v', 'm')
+      )  -- Excluir tipos generados automáticamente por tablas/vistas
+    ORDER BY type;
+    """
+    try:
+        cursor.execute(sql, (schema,))
+        return {row[0]: row[1] or '' for row in cursor.fetchall()}
+    except Exception as e:
+        print(f"Error al obtener types: {e}")
+        return {}
+
+def obtener_dblinks_con_comentarios(cursor, schema):
+    """Obtiene foreign servers/dblinks con sus comentarios"""
+    sql = """
+    SELECT
+        fs.srvname AS foreign_server,
+        obj_description(fs.oid, 'pg_foreign_server') AS comentario
+    FROM pg_foreign_server fs
+    ORDER BY foreign_server;
+    """
+    try:
+        cursor.execute(sql, (schema,))
+        return {row[0]: row[1] or '' for row in cursor.fetchall()}
+    except Exception as e:
+        print(f"Error al obtener dblinks/foreign servers: {e}")
+        return {}
+
+def obtener_tablas_foraneas_con_comentarios(cursor, schema):
+    """Obtiene foreign tables con sus comentarios"""
+    sql = """
+    SELECT
+        c.relname AS tabla_foranea,
+        obj_description(c.oid) AS comentario
+    FROM pg_class c
+    JOIN pg_namespace n ON n.oid = c.relnamespace
+    WHERE c.relkind = 'f'
+      AND n.nspname = %s
+    ORDER BY tabla_foranea;
+    """
+    try:
+        cursor.execute(sql, (schema,))
+        return {row[0]: row[1] or '' for row in cursor.fetchall()}
+    except Exception as e:
+        print(f"Error al obtener tablas foráneas: {e}")
+        return {}
+
+def obtener_sinonimos_con_comentarios(cursor, schema):
+    """Obtiene sinónimos (en PostgreSQL no existen nativamente, retorna vacío)"""
+    # PostgreSQL no tiene sinónimos nativos como Oracle
+    # Se podría implementar con vistas si el usuario las usa como sinónimos
+    return {}
 
 def generar_diccionario_rtf(host, port, database, user, password, schema, output_file):
     """Genera el diccionario de datos en formato RTF"""
@@ -402,6 +505,12 @@ def generar_diccionario_rtf(host, port, database, user, password, schema, output
     procedimientos = obtener_procedimientos_con_comentarios(cursor, schema)
     funciones = obtener_funciones_con_comentarios(cursor, schema)
     vistas = obtener_vistas_con_comentarios(cursor, schema)
+    triggers = obtener_triggers_con_comentarios(cursor, schema)
+    funciones_triggers = obtener_funciones_triggers_con_comentarios(cursor, schema)
+    types = obtener_types_con_comentarios(cursor, schema)
+    dblinks = obtener_dblinks_con_comentarios(cursor, schema)
+    tablas_foraneas = obtener_tablas_foraneas_con_comentarios(cursor, schema)
+    sinonimos = obtener_sinonimos_con_comentarios(cursor, schema)
     
     # Generar archivo RTF
     with open(output_file, 'w', encoding='utf-8') as writer:
@@ -424,7 +533,8 @@ def generar_diccionario_rtf(host, port, database, user, password, schema, output
                 writer.write(create_table_row([esq_name, desc or ""], ESQUEMAS_WIDTHS, False))
         else:
             writer.write("\\i No se encontraron esquemas.\\i0\\par\n")
-        
+        writer.write("\\par\n")
+
         # 2) Tablespaces
         writer.write("\\ql\\b\\fs28 Descripcion de Tablespaces\\b0\\fs18\\par\n")
         writer.write("\\par\n")
@@ -434,7 +544,8 @@ def generar_diccionario_rtf(host, port, database, user, password, schema, output
                 writer.write(create_table_row([tbs_name, desc or ""], TBSPACE_WIDTHS, False))
         else:
             writer.write("\\i No se encontraron tablespaces personalizados.\\i0\\par\n")
-        
+        writer.write("\\par\n")
+
         # 3) Extensiones
         writer.write("\\ql\\b\\fs28 Descripcion de Extensiones\\b0\\fs18\\par\n")
         writer.write("\\par\n")
@@ -444,7 +555,8 @@ def generar_diccionario_rtf(host, port, database, user, password, schema, output
                 writer.write(create_table_row([ext_name, desc or ""], EXTENSION_WIDTHS, False))
         else:
             writer.write("\\i No aplica.\\i0\\par\n")
-        
+        writer.write("\\par\n")
+
         writer.write("\\par\\page\n")
         
         # 4) Tablas (resumen)
@@ -458,17 +570,17 @@ def generar_diccionario_rtf(host, port, database, user, password, schema, output
                 i += 1
         else:
             writer.write("\\i No se encontraron comentarios de tablas en el esquema.\\i0\\par\n")
-        
+
         writer.write("\\par\\page\n")
-        
+
         # 5) Campos (detalle por tabla)
         writer.write("\\b\\fs28 Descripcion de Atributos\\b0\\fs18\\par\n")
         writer.write("\\par\n")
-        
+
         for t_name in table_names:
             writer.write(f"\\b\\fs24 Tabla: {escape_rtf(t_name)}\\b0\\fs18\\par\n")
             writer.write("\\par\n")
-            
+
             campos = obtener_campos_tabla(cursor, schema, t_name)
             if campos:
                 writer.write(create_table_row(ATRIBUTOS_HEADERS, ATRIBUTOS_WIDTHS, True))
@@ -489,7 +601,7 @@ def generar_diccionario_rtf(host, port, database, user, password, schema, output
             else:
                 writer.write("\\i No se encontraron columnas\\i0\\par\n")
             writer.write("\\par\n")
-        
+
         # 6) Procedimientos
         writer.write("\\page\n")
         writer.write("\\b\\fs28 Descripcion de Procedimientos\\b0\\fs18\\par\n")
@@ -503,7 +615,7 @@ def generar_diccionario_rtf(host, port, database, user, password, schema, output
         else:
             writer.write("\\i No aplica.\\i0\\par\n")
         writer.write("\\par\n")
-        
+
         # 7) Funciones
         writer.write("\\page\n")
         writer.write("\\b\\fs28 Descripcion de Funciones\\b0\\fs18\\par\n")
@@ -517,7 +629,7 @@ def generar_diccionario_rtf(host, port, database, user, password, schema, output
         else:
             writer.write("\\i No aplica.\\i0\\par\n")
         writer.write("\\par\n")
-        
+
         # 8) Vistas
         writer.write("\\ql\\b\\fs28 Descripcion de Vistas\\b0\\fs18\\par\n")
         writer.write("\\par\n")
@@ -534,11 +646,11 @@ def generar_diccionario_rtf(host, port, database, user, password, schema, output
         # 9) Triggers
         writer.write("\\ql\\b\\fs28 Descripcion de Triggers\\b0\\fs18\\par\n")
         writer.write("\\par\n")
-        if vistas:
-            writer.write(create_table_row(VISTAS_HEADERS, VISTAS_WIDTHS, True))
+        if triggers:
+            writer.write(create_table_row(TRIGGERS_HEADERS, TRIGGERS_WIDTHS, True))
             l = 1
-            for v_name, desc in vistas.items():
-                writer.write(create_table_row([str(j), v_name, desc or ""], TRIGGERS_WIDTHS, False))
+            for t_name, desc in triggers.items():
+                writer.write(create_table_row([str(l), t_name, desc or ""], TRIGGERS_WIDTHS, False))
                 l += 1
         else:
             writer.write("\\i No aplica.\\i0\\par\n")
@@ -547,24 +659,24 @@ def generar_diccionario_rtf(host, port, database, user, password, schema, output
         # 10) Funciones Triggers
         writer.write("\\ql\\b\\fs28 Descripcion de Funciones Triggers\\b0\\fs18\\par\n")
         writer.write("\\par\n")
-        if vistas:
-            writer.write(create_table_row(VISTAS_HEADERS, VISTAS_WIDTHS, True))
+        if funciones_triggers:
+            writer.write(create_table_row(F_TRIGGERS_HEADERS, F_TRIGGERS_WIDTHS, True))
             p = 1
-            for v_name, desc in vistas.items():
-                writer.write(create_table_row([str(j), v_name, desc or ""], TRIGGERS_WIDTHS, False))
+            for ft_name, desc in funciones_triggers.items():
+                writer.write(create_table_row([str(p), ft_name, desc or ""], F_TRIGGERS_WIDTHS, False))
                 p += 1
         else:
             writer.write("\\i No aplica.\\i0\\par\n")
         writer.write("\\par\\page\n")
-       
+
         # 11) Types
         writer.write("\\ql\\b\\fs28 Descripcion de Types\\b0\\fs18\\par\n")
         writer.write("\\par\n")
-        if vistas:
-            writer.write(create_table_row(VISTAS_HEADERS, VISTAS_WIDTHS, True))
+        if types:
+            writer.write(create_table_row(TYPES_HEADERS, TYPES_WIDTHS, True))
             q = 1
-            for v_name, desc in vistas.items():
-                writer.write(create_table_row([str(j), v_name, desc or ""], TYPES_WIDTHS, False))
+            for type_name, desc in types.items():
+                writer.write(create_table_row([str(q), type_name, desc or ""], TYPES_WIDTHS, False))
                 q += 1
         else:
             writer.write("\\i No aplica.\\i0\\par\n")
@@ -573,62 +685,41 @@ def generar_diccionario_rtf(host, port, database, user, password, schema, output
         # 12) Dblinks / Foreign Servers
         writer.write("\\ql\\b\\fs28 Descripcion de Dblinks / Foreign Servers\\b0\\fs18\\par\n")
         writer.write("\\par\n")
-        if vistas:
-            writer.write(create_table_row(VISTAS_HEADERS, VISTAS_WIDTHS, True))
+        if dblinks:
+            writer.write(create_table_row(DBLINKS_HEADERS, DBLINKS_WIDTHS, True))
             r = 1
-            for v_name, desc in vistas.items():
-                writer.write(create_table_row([str(j), v_name, desc or ""], DBLINKS_WIDTHS, False))
+            for db_name, desc in dblinks.items():
+                writer.write(create_table_row([str(r), db_name, desc or ""], DBLINKS_WIDTHS, False))
                 r += 1
         else:
             writer.write("\\i No aplica.\\i0\\par\n")
         writer.write("\\par\\page\n")
 
         # 13) Tablas Foráneas
-        writer.write("\\ql\\b\\fs28 Descripcion de Tablas Foráneas\\b0\\fs18\\par\n")
+        writer.write("\\ql\\b\\fs28 Descripcion de Tablas Foraneas\\b0\\fs18\\par\n")
         writer.write("\\par\n")
-        
-        for t_name in table_names:
-            writer.write(f"\\b\\fs24 Tabla: {escape_rtf(t_name)}\\b0\\fs18\\par\n")
-            writer.write("\\par\n")
+        if tablas_foraneas:
+            writer.write(create_table_row(T_FORANEA_HEADERS, T_FORANEA_WIDTHS, True))
+            s = 1
+            for tf_name, desc in tablas_foraneas.items():
+                writer.write(create_table_row([str(s), tf_name, desc or ""], T_FORANEA_WIDTHS, False))
+                s += 1
+        else:
+            writer.write("\\i No aplica.\\i0\\par\n")
+        writer.write("\\par\\page\n")
 
-            campos = obtener_campos_tabla(cursor, schema, t_name)
-            if campos:
-                writer.write(create_table_row(ATRIBUTOS_HEADERS, ATRIBUTOS_WIDTHS, True))
-                s = 1
-                for campo in campos:
-                    cells = [
-                        str(j),
-                        campo.get('nombre_columna', ''),
-                        campo.get('tipo', ''),
-                        campo.get('permite_nulos', ''),
-                        campo.get('pk', ''),
-                        campo.get('fk', ''),
-                        campo.get('descripcion_columna', ''),
-                        campo.get('valores_permitidos', '')
-                    ]
-                    writer.write(create_table_row(cells, ATRIBUTOS_WIDTHS, False))
-                    s += 1
-            else:
-                writer.write("\\i No se encontraron columnas\\i0\\par\n")
-            writer.write("\\par\n")
-
-            # 14) Sinónimos
-            writer.write("\\page\n")
-            writer.write("\\ql\\b\\fs28 Descripcion de Sinónimos\\b0\\fs18\\par\n")
-            writer.write("\\par\n")
-            if vistas:
-                writer.write(create_table_row(VISTAS_HEADERS, VISTAS_WIDTHS, True))
-                t = 1
-                for v_name, desc in vistas.items():
-                    writer.write(create_table_row([str(j), v_name, desc or ""], SINONIMOS_WIDTHS, False))
-                    t += 1
-            else:
-                writer.write("\\i No aplica.\\i0\\par\n")
-                
-           
-
-
-
+        # 14) Sinónimos
+        writer.write("\\ql\\b\\fs28 Descripcion de Sinonimos\\b0\\fs18\\par\n")
+        writer.write("\\par\n")
+        if sinonimos:
+            writer.write(create_table_row(SINONIMOS_HEADERS, SINONIMOS_WIDTHS, True))
+            t = 1
+            for sin_name, desc in sinonimos.items():
+                writer.write(create_table_row([str(t), sin_name, desc or ""], SINONIMOS_WIDTHS, False))
+                t += 1
+        else:
+            writer.write("\\i No aplica.\\i0\\par\n")
+        writer.write("\\par\n")
 
 
 

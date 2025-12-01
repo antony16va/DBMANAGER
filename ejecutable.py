@@ -322,8 +322,8 @@ class DBManager:
         clear_btn.pack(side=tk.LEFT, padx=5)
         self._add_hover_effect(clear_btn, self.colors['bg_light'], self.colors['border'])
 
-        save_btn = tk.Button(console_btn_frame, text="💾 Guardar Log",
-                            command=self.save_log,
+        copy_btn = tk.Button(console_btn_frame, text="📋 Copiar Log",
+                            command=self.copy_log,
                             font=('Segoe UI', 9),
                             bg=self.colors['bg_light'],
                             fg=self.colors['text_dark'],
@@ -331,8 +331,8 @@ class DBManager:
                             cursor='hand2',
                             borderwidth=0,
                             padx=12, pady=6)
-        save_btn.pack(side=tk.LEFT, padx=5)
-        self._add_hover_effect(save_btn, self.colors['bg_light'], self.colors['border'])
+        copy_btn.pack(side=tk.LEFT, padx=5)
+        self._add_hover_effect(copy_btn, self.colors['bg_light'], self.colors['border'])
 
         # Consola con diseño moderno y mejor contraste
         console_container = tk.Frame(console_frame, bg='#1e1e1e', relief=tk.SOLID,
@@ -459,30 +459,7 @@ class DBManager:
             widget.destroy()
         
         self.param_widgets.clear()
-        
-        # Información del script con mejor diseño
-        script_info = tk.Frame(self.params_frame, bg=self.colors['bg_light'],
-                              relief=tk.FLAT, borderwidth=0)
-        script_info.grid(row=0, column=0, columnspan=2, sticky='ew', pady=(0, 12), padx=0)
 
-        tk.Label(script_info, text="📄 Script:",
-                font=('Segoe UI', 9, 'bold'),
-                bg=self.colors['bg_light'],
-                fg=self.colors['text_dark'],
-                padx=10, pady=8).pack(side=tk.LEFT)
-
-        tk.Label(script_info, text=module['script'],
-                font=('Segoe UI', 8),
-                bg=self.colors['bg_light'],
-                fg=self.colors['text_light'],
-                padx=5, pady=8).pack(side=tk.LEFT, fill=tk.X, expand=True)
-
-        # Separador decorativo
-        sep_frame = tk.Frame(self.params_frame, bg=self.colors['bg_card'])
-        sep_frame.grid(row=1, column=0, columnspan=3, sticky='ew', pady=(0, 15))
-
-        tk.Frame(sep_frame, bg=self.colors['border'], height=2).pack(fill=tk.X)
-        
         param_labels = {
             "ruta_plantilla_excel": "Ruta Plantilla Excel:",
             "ruta_salida_ddl_base": "Ruta Salida DDL:",
@@ -497,8 +474,8 @@ class DBManager:
             "ruta_salida_rtf": "Ruta Salida RTF:",
             "cantidad_registros": "Cantidad Registros:"
         }
-        
-        row = 2
+
+        row = 0
         for param in module['params']:
             label_text = param_labels.get(param, param + ":")
 
@@ -517,16 +494,14 @@ class DBManager:
 
                 # Obtener historial de valores para este parámetro
                 param_history = self.config.get(f'_history_{param}', [])
+                # Agregar opción en blanco al inicio para limpiar
+                param_history_with_blank = [''] + param_history if param_history else ['']
 
                 # Usar Combobox para mostrar sugerencias
                 entry = ttk.Combobox(frame, textvariable=var,
                                     font=('Segoe UI', 9),
-                                    values=param_history)
+                                    values=param_history_with_blank)
                 entry.pack(side=tk.LEFT, fill=tk.X, expand=True, ipady=3)
-
-                # Mostrar sugerencias automáticamente al hacer clic (solo si hay historial)
-                if param_history:
-                    entry.bind('<Button-1>', lambda e, combo=entry: combo.after(50, combo.post))
 
                 is_input = 'plantilla' in param.lower() or ('ddl' in param.lower() and 'salida' not in param.lower())
                 # Icono apropiado según el tipo de acción
@@ -562,16 +537,14 @@ class DBManager:
 
                 # Obtener historial de valores para este parámetro
                 param_history = self.config.get(f'_history_{param}', [])
+                # Agregar opción en blanco al inicio para limpiar
+                param_history_with_blank = [''] + param_history if param_history else ['']
 
                 # Usar Combobox para mostrar sugerencias
                 entry = ttk.Combobox(self.params_frame, textvariable=var,
                                     font=('Segoe UI', 9),
-                                    values=param_history)
+                                    values=param_history_with_blank)
                 entry.grid(row=row, column=1, sticky=(tk.W, tk.E), pady=8, ipady=3)
-
-                # Mostrar sugerencias automáticamente al hacer clic (solo si hay historial)
-                if param_history:
-                    entry.bind('<Button-1>', lambda _e, combo=entry: combo.after(50, combo.post))
 
                 self.param_widgets[param] = var
 
@@ -619,7 +592,6 @@ class DBManager:
         self.log_message(f"\n{'='*70}", "info")
         self.log_message(f"Modulo seleccionado: {module['name']}", "module")
         self.log_message(f"Tipo: {module['type'].upper()}", "info")
-        self.log_message(f"Script: {module['script']}", "info")
         self.log_message(f"{'='*70}\n", "info")
         
     def browse_path(self, var, param_name):
@@ -794,21 +766,19 @@ class DBManager:
     def clear_console(self):
         self.console_text.delete('1.0', tk.END)
         
-    def save_log(self):
+    def copy_log(self):
+        """Copia el contenido del log al portapapeles"""
         log_content = self.console_text.get('1.0', tk.END)
-        filename = filedialog.asksaveasfilename(
-            defaultextension=".txt",
-            filetypes=[("Text files", "*.txt"), ("All files", "*.*")],
-            initialfile=f"log_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
-        )
-        
-        if filename:
-            try:
-                with open(filename, 'w', encoding='utf-8') as f:
-                    f.write(log_content)
-                self.log_message(f"\n Log guardado en: {filename}", "success")
-            except Exception as e:
-                messagebox.showerror("Error", f"No se pudo guardar el log: {e}")
+        try:
+            # Limpiar el portapapeles y copiar el nuevo contenido
+            self.root.clipboard_clear()
+            self.root.clipboard_append(log_content)
+            self.root.update()  # Necesario para que el portapapeles se actualice
+
+            # Mostrar mensaje temporal de confirmación
+            messagebox.showinfo("Éxito", "Log copiado al portapapeles correctamente")
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo copiar el log: {e}")
                 
     def log_message(self, message, tag="info"):
         self.console_text.insert(tk.END, message + "\n", tag)
