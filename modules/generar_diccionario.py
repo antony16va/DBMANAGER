@@ -334,15 +334,16 @@ def obtener_procedimientos_con_comentarios(cursor, schema):
         return {}
 
 def obtener_funciones_con_comentarios(cursor, schema):
-    """Obtiene funciones con sus comentarios"""
+    """Obtiene funciones con sus comentarios (excluyendo funciones trigger)"""
     sql = """
-    SELECT 
+    SELECT
         p.proname AS funcion,
         obj_description(p.oid, 'pg_proc') AS comentario
     FROM pg_proc p
     JOIN pg_namespace n ON n.oid = p.pronamespace
     WHERE n.nspname = %s
       AND p.prokind = 'f'
+      AND p.prorettype != (SELECT oid FROM pg_type WHERE typname = 'trigger')
     ORDER BY funcion;
     """
     try:

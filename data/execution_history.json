@@ -190,5 +190,37 @@
       "esquema": "sigloc",
       "ruta_salida_rtf": "C:/Users/avalencia/Desktop/DBMANAGER/sigloc.rtf"
     }
+  },
+  {
+    "timestamp": "2025-12-01 10:37:19",
+    "module_id": 3,
+    "module_name": "DICCIONARIO DE DATOS",
+    "status": "success",
+    "duration": 0.949582,
+    "params": {
+      "host": "192.168.44.41",
+      "puerto": "5433",
+      "bd": "sigloc_dev",
+      "usuario": "sigloc",
+      "password": "sigloc_ab01$",
+      "esquema": "sigloc",
+      "ruta_salida_rtf": "C:/Users/avalencia/Desktop/DBMANAGER/sigloc.rtf"
+    }
+  },
+  {
+    "timestamp": "2025-12-01 11:18:23",
+    "module_id": 3,
+    "module_name": "DICCIONARIO DE DATOS",
+    "status": "success",
+    "duration": 0.795988,
+    "params": {
+      "host": "192.168.44.49",
+      "puerto": "5433",
+      "bd": "claridad_dev",
+      "usuario": "claridad",
+      "password": "claridad_ab01$",
+      "esquema": "claridad_admin",
+      "ruta_salida_rtf": "C:/Users/avalencia/Desktop/DBMANAGER/claridad.rtf"
+    }
   }
 ]

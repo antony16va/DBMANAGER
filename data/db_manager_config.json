@@ -2,7 +2,8 @@
   "_history_host": [
     "localhost",
     "192.168.44.432",
-    "192.168.44.41"
+    "192.168.44.41",
+    "192.168.44.49"
   ],
   "_history_puerto": [
     "5432",
@@ -10,11 +11,13 @@
   ],
   "_history_bd": [
     "gemma",
-    "sigloc_dev"
+    "sigloc_dev",
+    "claridad_dev"
   ],
   "_history_usuario": [
     "postgres",
-    "sigloc"
+    "sigloc",
+    "claridad"
   ],
   "_history_password": [
     "sigloc_ab01$"
@@ -24,14 +27,14 @@
     "C:/Users/Antony/Desktop/Nueva carpeta (2)/PRACTICAS FINAL/DBMANAGER/ddl_final.sql"
   ],
   "_global_params": {
-    "host": "192.168.44.41",
+    "host": "192.168.44.49",
     "puerto": "5433",
-    "bd": "sigloc_dev",
-    "usuario": "sigloc",
+    "bd": "claridad_dev",
+    "usuario": "claridad",
     "password": "sigloc_ab01$",
     "ruta_salida_ddl_completo": "C:/Users/Antony/Desktop/Nueva carpeta (2)/PRACTICAS FINAL/DBMANAGER/ddl_final.sql",
-    "esquema": "sigloc",
-    "ruta_salida_rtf": "C:/Users/avalencia/Desktop/DBMANAGER/sigloc.rtf",
+    "esquema": "claridad_admin",
+    "ruta_salida_rtf": "C:/Users/avalencia/Desktop/DBMANAGER/claridad.rtf",
     "ruta_ddl_completo": "C:/Users/Antony/Desktop/Nueva carpeta (2)/PRACTICAS FINAL/DBMANAGER/dump.sql",
     "ruta_plantilla_excel": "C:/Users/Antony/Desktop/Nueva carpeta (2)/PRACTICAS FINAL/DBMANAGER/resources/Plantilla_Modelo.xlsx",
     "ruta_salida_ddl_base": "C:/Users/Antony/Desktop/Nueva carpeta (2)/PRACTICAS FINAL/DBMANAGER/ddl_inicial.sql",
@@ -39,12 +42,14 @@
     "ruta_salida_reporte": "C:/Users/Antony/Desktop/Nueva carpeta (2)/PRACTICAS FINAL/DBMANAGER/reporte.rtf"
   },
   "_history_esquema": [
-    "sigloc"
+    "sigloc",
+    "claridad_admin"
   ],
   "_history_ruta_salida_rtf": [
     "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/diccionario_sigloc.rtf",
     "C:/Users/Antony/Desktop/Nueva carpeta (2)/PRACTICAS FINAL/DBMANAGER/sigloc.rtf",
-    "C:/Users/avalencia/Desktop/DBMANAGER/sigloc.rtf"
+    "C:/Users/avalencia/Desktop/DBMANAGER/sigloc.rtf",
+    "C:/Users/avalencia/Desktop/DBMANAGER/claridad.rtf"
   ],
   "_history_ruta_ddl_completo": [
     "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/ddl_final.sql",
