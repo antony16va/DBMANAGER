@@ -1061,7 +1061,7 @@ def main():
         print("Error: Se requieren 6 parametros")
         print("Uso: python validar_nomenclatura.py <host> <puerto> <bd> <usuario> <password> <ruta_salida_ddl_completo>")
         sys.exit(1)
-    
+
     host = sys.argv[1]
     puerto = sys.argv[2]
     bd = sys.argv[3]
@@ -1106,32 +1106,32 @@ def main():
     print(f"Base de datos: {bd}")
     print(f"Usuario: {usuario}")
     print(f"Archivo de salida: {ruta_salida}")
-    
+
     base_dir = Path(__file__).resolve().parent
     reglas_json = base_dir.parent / 'resources' / 'reglas_nomenclatura.json'
     validador = ValidadorDDL(str(reglas_json))
-    
+
     print(f"\nGenerando DDL desde base de datos...")
     if not validador.generar_ddl_desde_bd(host, puerto, usuario, bd, ruta_salida, password):
         print("\n✗ Error al generar DDL")
         sys.exit(1)
-    
+
     print("DDL generado...")
-    
+
     print("\nValidando nomenclatura...")
     try:
         es_valido = validador.validar()
-        
+
         print(f"\nResultado: {'VALIDO' if es_valido else 'ERRORES ENCONTRADOS'}")
         print(f"Errores: {len(validador.errores)}")
         print(f"Advertencias: {len(validador.warnings)}")
-        
+
         reporte = ruta_salida.replace('.sql', '_nomenclatura.txt')
         validador.generar_reporte(reporte)
-        
+
         print(f"\nDDL completo generado en: {ruta_salida}")
         print(f"Reporte de validacion: {reporte}")
-        
+
         sys.exit(0)
     except Exception as e:
         print(f"\n✗ Error durante la validacion: {e}")

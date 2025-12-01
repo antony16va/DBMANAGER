@@ -1,443 +1,50 @@
 [
   {
-    "timestamp": "2025-11-28 18:04:05",
+    "timestamp": "2025-11-30 18:58:42",
     "module_id": 1,
     "module_name": "GENERAR DDL INICIAL",
     "status": "success",
-    "duration": 0.189325,
+    "duration": 0.14982,
     "params": {
-      "ruta_plantilla_excel": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/resources/Plantilla_Modelo.xlsx",
-      "ruta_salida_ddl_base": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/ddl_inicial.sql"
+      "ruta_plantilla_excel": "C:/Users/Antony/Desktop/Nueva carpeta (2)/PRACTICAS FINAL/DBMANAGER/resources/Plantilla_Modelo.xlsx",
+      "ruta_salida_ddl_base": "C:/Users/Antony/Desktop/Nueva carpeta (2)/PRACTICAS FINAL/DBMANAGER/ddl_inicial.sql"
     }
   },
   {
-    "timestamp": "2025-11-28 18:05:18",
+    "timestamp": "2025-11-30 19:00:11",
     "module_id": 2,
     "module_name": "VALIDAR NOMENCLATURA",
     "status": "success",
-    "duration": 0.691148,
+    "duration": 0.896857,
     "params": {
       "host": "localhost",
       "puerto": "5432",
       "bd": "sigloc_dev",
-      "usuario": "sigloc",
-      "password": "sigloc_ab01$",
-      "ruta_salida_ddl_completo": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/ddl_final.sql"
+      "usuario": "postgres",
+      "password": "admin",
+      "ruta_salida_ddl_completo": "C:/Users/Antony/Desktop/Nueva carpeta (2)/PRACTICAS FINAL/DBMANAGER/ddl_final.sql"
     }
   },
   {
-    "timestamp": "2025-11-28 18:21:55",
+    "timestamp": "2025-11-30 19:21:00",
     "module_id": 2,
     "module_name": "VALIDAR NOMENCLATURA",
     "status": "success",
-    "duration": 0.667463,
+    "duration": 0.105855,
     "params": {
-      "host": "localhost",
-      "puerto": "5432",
-      "bd": "sigloc_dev",
-      "usuario": "sigloc",
-      "password": "sigloc_ab01$",
-      "ruta_salida_ddl_completo": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/ddl_final.sql"
+      "ruta_ddl_completo": "C:/Users/Antony/Desktop/Nueva carpeta (2)/PRACTICAS FINAL/DBMANAGER/dump.sql",
+      "ruta_salida_reporte": "C:/Users/Antony/Desktop/Nueva carpeta (2)/PRACTICAS FINAL/DBMANAGER/reporte.rtf"
     }
   },
   {
-    "timestamp": "2025-11-28 18:27:50",
-    "module_id": 2,
-    "module_name": "VALIDAR NOMENCLATURA",
-    "status": "error",
-    "duration": 0.261014,
-    "params": {
-      "host": "localhost",
-      "puerto": "5432",
-      "bd": "sigloc_dev",
-      "usuario": "sigloc",
-      "password": "sigloc:ab01$",
-      "ruta_salida_ddl_completo": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/ddl_final.sql"
-    }
-  },
-  {
-    "timestamp": "2025-11-28 18:28:24",
+    "timestamp": "2025-11-30 19:21:46",
     "module_id": 2,
     "module_name": "VALIDAR NOMENCLATURA",
     "status": "success",
-    "duration": 0.644419,
+    "duration": 0.101559,
     "params": {
-      "host": "localhost",
-      "puerto": "5432",
-      "bd": "sigloc_dev",
-      "usuario": "sigloc",
-      "password": "sigloc_ab01$",
-      "ruta_salida_ddl_completo": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/ddl_final.sql"
-    }
-  },
-  {
-    "timestamp": "2025-11-28 18:34:19",
-    "module_id": 2,
-    "module_name": "VALIDAR NOMENCLATURA",
-    "status": "success",
-    "duration": 0.658017,
-    "params": {
-      "host": "localhost",
-      "puerto": "5432",
-      "bd": "sigloc_dev",
-      "usuario": "sigloc",
-      "password": "sigloc_ab01$",
-      "ruta_salida_ddl_completo": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/ddl_final.sql"
-    }
-  },
-  {
-    "timestamp": "2025-11-28 18:46:12",
-    "module_id": 2,
-    "module_name": "VALIDAR NOMENCLATURA",
-    "status": "success",
-    "duration": 0.689121,
-    "params": {
-      "host": "localhost",
-      "puerto": "5432",
-      "bd": "sigloc_dev",
-      "usuario": "sigloc",
-      "password": "sigloc_ab01$",
-      "ruta_salida_ddl_completo": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/ddl_final.sql"
-    }
-  },
-  {
-    "timestamp": "2025-11-28 18:50:39",
-    "module_id": 2,
-    "module_name": "VALIDAR NOMENCLATURA",
-    "status": "success",
-    "duration": 0.786117,
-    "params": {
-      "host": "localhost",
-      "puerto": "5432",
-      "bd": "sigloc_dev",
-      "usuario": "sigloc",
-      "password": "sigloc_ab01$",
-      "ruta_salida_ddl_completo": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/ddl_final.sql"
-    }
-  },
-  {
-    "timestamp": "2025-11-28 18:52:53",
-    "module_id": 3,
-    "module_name": "DICCIONARIO DE DATOS",
-    "status": "error",
-    "duration": 0.082215,
-    "params": {
-      "host": "localhost",
-      "puerto": "5432",
-      "bd": "sigloc_dev",
-      "usuario": "sigloc",
-      "password": "sigloc_ab01$",
-      "esquema": "sigloc",
-      "ruta_salida_rtf": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/diccionario_sigloc.rtf"
-    }
-  },
-  {
-    "timestamp": "2025-11-28 18:53:14",
-    "module_id": 3,
-    "module_name": "DICCIONARIO DE DATOS",
-    "status": "error",
-    "duration": 0.079437,
-    "params": {
-      "host": "localhost",
-      "puerto": "5432",
-      "bd": "sigloc_dev",
-      "usuario": "sigloc",
-      "password": "sigloc_ab01$",
-      "esquema": "sigloc",
-      "ruta_salida_rtf": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/diccionario_sigloc.rtf"
-    }
-  },
-  {
-    "timestamp": "2025-11-28 18:54:15",
-    "module_id": 3,
-    "module_name": "DICCIONARIO DE DATOS",
-    "status": "error",
-    "duration": 0.086184,
-    "params": {
-      "host": "localhost",
-      "puerto": "5432",
-      "bd": "sigloc_dev",
-      "usuario": "sigloc",
-      "password": "sigloc_ab01$",
-      "esquema": "sigloc",
-      "ruta_salida_rtf": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/diccionario_sigloc.rtf"
-    }
-  },
-  {
-    "timestamp": "2025-11-28 18:55:41",
-    "module_id": 3,
-    "module_name": "DICCIONARIO DE DATOS",
-    "status": "error",
-    "duration": 0.085462,
-    "params": {
-      "host": "localhost",
-      "puerto": "5432",
-      "bd": "sigloc_dev",
-      "usuario": "sigloc",
-      "password": "sigloc_ab01$",
-      "esquema": "sigloc",
-      "ruta_salida_rtf": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/diccionario_sigloc.rtf"
-    }
-  },
-  {
-    "timestamp": "2025-11-28 18:56:19",
-    "module_id": 3,
-    "module_name": "DICCIONARIO DE DATOS",
-    "status": "error",
-    "duration": 0.086815,
-    "params": {
-      "host": "localhost",
-      "puerto": "5432",
-      "bd": "sigloc_dev",
-      "usuario": "sigloc",
-      "password": "sigloc_ab01$",
-      "esquema": "sigloc",
-      "ruta_salida_rtf": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/diccionario_sigloc.rtf"
-    }
-  },
-  {
-    "timestamp": "2025-11-28 18:59:53",
-    "module_id": 3,
-    "module_name": "DICCIONARIO DE DATOS",
-    "status": "error",
-    "duration": 0.078129,
-    "params": {
-      "host": "localhost",
-      "puerto": "5432",
-      "bd": "sigloc_dev",
-      "usuario": "sigloc",
-      "password": "sigloc_ab01$",
-      "esquema": "sigloc",
-      "ruta_salida_rtf": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/diccionario_sigloc.rtf"
-    }
-  },
-  {
-    "timestamp": "2025-11-28 19:00:31",
-    "module_id": 3,
-    "module_name": "DICCIONARIO DE DATOS",
-    "status": "error",
-    "duration": 0.086674,
-    "params": {
-      "host": "localhost",
-      "puerto": "5432",
-      "bd": "sigloc_dev",
-      "usuario": "sigloc",
-      "password": "sigloc_ab01$",
-      "esquema": "sigloc",
-      "ruta_salida_rtf": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/diccionario_sigloc.rtf"
-    }
-  },
-  {
-    "timestamp": "2025-11-28 19:01:46",
-    "module_id": 3,
-    "module_name": "DICCIONARIO DE DATOS",
-    "status": "error",
-    "duration": 0.104151,
-    "params": {
-      "host": "localhost",
-      "puerto": "5432",
-      "bd": "sigloc_dev",
-      "usuario": "sigloc",
-      "password": "sigloc_ab01$",
-      "esquema": "sigloc",
-      "ruta_salida_rtf": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/diccionario_sigloc.rtf"
-    }
-  },
-  {
-    "timestamp": "2025-11-28 19:02:15",
-    "module_id": 3,
-    "module_name": "DICCIONARIO DE DATOS",
-    "status": "error",
-    "duration": 0.085312,
-    "params": {
-      "host": "localhost",
-      "puerto": "5432",
-      "bd": "sigloc_dev",
-      "usuario": "sigloc",
-      "password": "sigloc_ab01$",
-      "esquema": "sigloc",
-      "ruta_salida_rtf": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/diccionario_sigloc.rtf"
-    }
-  },
-  {
-    "timestamp": "2025-11-28 19:03:38",
-    "module_id": 3,
-    "module_name": "DICCIONARIO DE DATOS",
-    "status": "success",
-    "duration": 1.552457,
-    "params": {
-      "host": "localhost",
-      "puerto": "5432",
-      "bd": "sigloc_dev",
-      "usuario": "sigloc",
-      "password": "sigloc_ab01$",
-      "esquema": "sigloc",
-      "ruta_salida_rtf": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/diccionario_sigloc.rtf"
-    }
-  },
-  {
-    "timestamp": "2025-11-28 20:28:42",
-    "module_id": 2,
-    "module_name": "VALIDAR NOMENCLATURA",
-    "status": "error",
-    "duration": 0.190813,
-    "params": {
-      "host": "localhost",
-      "puerto": "5432",
-      "bd": "sigloc_dev",
-      "usuario": "sigloc",
-      "password": "SIGLOC_AB01$",
-      "ruta_salida_ddl_completo": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/ddl_final.sql"
-    }
-  },
-  {
-    "timestamp": "2025-11-28 20:28:56",
-    "module_id": 2,
-    "module_name": "VALIDAR NOMENCLATURA",
-    "status": "success",
-    "duration": 0.736791,
-    "params": {
-      "host": "localhost",
-      "puerto": "5432",
-      "bd": "sigloc_dev",
-      "usuario": "sigloc",
-      "password": "sigloc_ab01$",
-      "ruta_salida_ddl_completo": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/ddl_final.sql"
-    }
-  },
-  {
-    "timestamp": "2025-11-28 20:29:12",
-    "module_id": 5,
-    "module_name": "DASHBOARD",
-    "status": "error",
-    "duration": 0.180352,
-    "params": {
-      "ruta_ddl_completo": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/ddl_final.sql"
-    }
-  },
-  {
-    "timestamp": "2025-11-28 20:30:00",
-    "module_id": 5,
-    "module_name": "DASHBOARD",
-    "status": "error",
-    "duration": 0.132827,
-    "params": {
-      "ruta_ddl_completo": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/ddl_final.sql"
-    }
-  },
-  {
-    "timestamp": "2025-11-28 20:32:45",
-    "module_id": 5,
-    "module_name": "DASHBOARD",
-    "status": "error",
-    "duration": 0.72552,
-    "params": {
-      "ruta_ddl_completo": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/ddl_final.sql"
-    }
-  },
-  {
-    "timestamp": "2025-11-28 20:33:52",
-    "module_id": 5,
-    "module_name": "DASHBOARD",
-    "status": "error",
-    "duration": 0.682833,
-    "params": {
-      "ruta_ddl_completo": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/ddl_final.sql"
-    }
-  },
-  {
-    "timestamp": "2025-11-28 20:34:14",
-    "module_id": 5,
-    "module_name": "DASHBOARD",
-    "status": "success",
-    "duration": 1.039498,
-    "params": {
-      "ruta_ddl_completo": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/ddl_final.sql"
-    }
-  },
-  {
-    "timestamp": "2025-11-28 20:41:21",
-    "module_id": 1,
-    "module_name": "GENERAR DDL INICIAL",
-    "status": "success",
-    "duration": 0.128675,
-    "params": {
-      "ruta_plantilla_excel": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/resources/Plantilla_Modelo.xlsx",
-      "ruta_salida_ddl_base": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/resources/ddl_inicial.sql"
-    }
-  },
-  {
-    "timestamp": "2025-11-28 20:41:42",
-    "module_id": 1,
-    "module_name": "GENERAR DDL INICIAL",
-    "status": "success",
-    "duration": 0.123831,
-    "params": {
-      "ruta_plantilla_excel": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/resources/Plantilla_Modelo.xlsx",
-      "ruta_salida_ddl_base": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/ddl_inicial.sql"
-    }
-  },
-  {
-    "timestamp": "2025-11-28 20:42:05",
-    "module_id": 3,
-    "module_name": "DICCIONARIO DE DATOS",
-    "status": "error",
-    "duration": 0.080357,
-    "params": {
-      "host": "localhost",
-      "puerto": "5432",
-      "bd": "sigloc_dev",
-      "usuario": "sigloc",
-      "password": "sigloc_ab01$",
-      "esquema": "sigloc",
-      "ruta_salida_rtf": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/diccionario_sigloc.rtf"
-    }
-  },
-  {
-    "timestamp": "2025-11-28 20:42:27",
-    "module_id": 3,
-    "module_name": "DICCIONARIO DE DATOS",
-    "status": "error",
-    "duration": 0.077868,
-    "params": {
-      "host": "localhost",
-      "puerto": "5432",
-      "bd": "sigloc_dev",
-      "usuario": "sigloc",
-      "password": "sigloc_ab01$",
-      "esquema": "sigloc",
-      "ruta_salida_rtf": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/diccionario_sigloc.rtf"
-    }
-  },
-  {
-    "timestamp": "2025-11-28 20:44:55",
-    "module_id": 3,
-    "module_name": "DICCIONARIO DE DATOS",
-    "status": "success",
-    "duration": 1.607201,
-    "params": {
-      "host": "localhost",
-      "puerto": "5432",
-      "bd": "sigloc_dev",
-      "usuario": "sigloc",
-      "password": "sigloc_ab01$",
-      "esquema": "sigloc",
-      "ruta_salida_rtf": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/diccionario_sigloc.rtf"
-    }
-  },
-  {
-    "timestamp": "2025-11-28 20:45:30",
-    "module_id": 2,
-    "module_name": "VALIDAR NOMENCLATURA",
-    "status": "success",
-    "duration": 0.687805,
-    "params": {
-      "host": "localhost",
-      "puerto": "5432",
-      "bd": "sigloc_dev",
-      "usuario": "sigloc",
-      "password": "sigloc_ab01$",
-      "ruta_salida_ddl_completo": "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/ddl_final.sql"
+      "ruta_ddl_completo": "C:/Users/Antony/Desktop/Nueva carpeta (2)/PRACTICAS FINAL/DBMANAGER/dump.sql",
+      "ruta_salida_reporte": "C:/Users/Antony/Desktop/Nueva carpeta (2)/PRACTICAS FINAL/DBMANAGER/reporte.rtf"
     }
   }
 ]

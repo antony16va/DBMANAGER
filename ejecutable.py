@@ -11,8 +11,8 @@ import shutil
 class DBManager:
     def __init__(self, root):
         self.root = root
-        self.root.title("DB MANAGER")
-        self.root.geometry("1300x900")
+        self.root.title("DB-MANAGER")
+        self.root.geometry("1200x600")
         self.root.minsize(1200, 800)
         
         self.base_dir = Path(__file__).resolve().parent
@@ -41,7 +41,7 @@ class DBManager:
             'warning': '#f39c12',       # Naranja
             'danger': '#e74c3c',        # Rojo
             'bg_light': '#ecf0f1',      # Gris claro
-            'bg_card': '#ffffff',       # Blanco
+            'bg_card': '#f7fafc',       # Gris muy claro en lugar de blanco puro
             'text_dark': '#2c3e50',     # Texto oscuro
             'text_light': '#7f8c8d',    # Texto gris
             'border': '#bdc3c7',        # Borde gris
@@ -226,7 +226,7 @@ class DBManager:
             self.create_module_card(modules_frame, module)
         
         right_panel = ttk.Frame(content_frame)
-        content_frame.add(right_panel, weight=3)
+        content_frame.add(right_panel, weight=4)
         
         config_frame = ttk.LabelFrame(right_panel, text="  Configuracion del Modulo", padding=15)
         config_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 10))
@@ -296,48 +296,10 @@ class DBManager:
         
         self.param_widgets = {}
         
-        btn_frame = tk.Frame(config_frame, bg=self.colors['bg_card'])
-        btn_frame.pack(fill=tk.X, pady=(15, 0))
+        self.btn_frame = tk.Frame(config_frame, bg=self.colors['bg_card'])
+        self.btn_frame.pack(fill=tk.X, pady=(15, 0))
 
-        # Botones de acción mejorados con iconos
-        save_btn = tk.Button(btn_frame, text="💾 Guardar Configuración",
-                            command=self.save_module_config,
-                            font=('Segoe UI', 10, 'bold'),
-                            bg=self.colors['secondary'],
-                            fg='white',
-                            relief='flat',
-                            cursor='hand2',
-                            borderwidth=0,
-                    padx=10, pady=6)
-        save_btn.grid(row=0, column=0, sticky='ew', padx=5)
-        self._add_hover_effect(save_btn, self.colors['secondary'], '#2980b9')
-
-        exec_btn = tk.Button(btn_frame, text="▶ Ejecutar Módulo",
-                            command=self.execute_current_module,
-                            font=('Segoe UI', 10, 'bold'),
-                            bg=self.colors['success'],
-                            fg='white',
-                            relief='flat',
-                            cursor='hand2',
-                            borderwidth=0,
-                    padx=10, pady=6)
-        exec_btn.grid(row=0, column=1, sticky='ew', padx=5)
-        self._add_hover_effect(exec_btn, self.colors['success'], '#229954')
-
-        stop_btn = tk.Button(btn_frame, text="⬛ Detener",
-                            command=self.stop_execution,
-                            font=('Segoe UI', 10, 'bold'),
-                            bg=self.colors['danger'],
-                            fg='white',
-                            relief='flat',
-                            cursor='hand2',
-                            borderwidth=0,
-                    padx=10, pady=6)
-        stop_btn.grid(row=0, column=2, sticky='ew', padx=5)
-        self._add_hover_effect(stop_btn, self.colors['danger'], '#c0392b')
-
-        for i in range(3):
-            btn_frame.columnconfigure(i, weight=1)
+        # Botones de acción mejorados con iconos (se crearán dinámicamente en select_module)
         
         console_frame = ttk.LabelFrame(right_panel, text="  Consola de Ejecucion", padding=10)
         console_frame.configure(height=220)
@@ -533,7 +495,7 @@ class DBManager:
             "ruta_ddl_completo": "Ruta DDL Completo:",
             "esquema": "Esquema:",
             "ruta_salida_rtf": "Ruta Salida RTF:",
-            "ruta_ddl_base": "Ruta DDL:"
+            "cantidad_registros": "Cantidad Registros:"
         }
         
         row = 2
@@ -561,6 +523,10 @@ class DBManager:
                                     font=('Segoe UI', 9),
                                     values=param_history)
                 entry.pack(side=tk.LEFT, fill=tk.X, expand=True, ipady=3)
+
+                # Mostrar sugerencias automáticamente al hacer clic (solo si hay historial)
+                if param_history:
+                    entry.bind('<Button-1>', lambda e, combo=entry: combo.after(50, combo.post))
 
                 is_input = 'plantilla' in param.lower() or ('ddl' in param.lower() and 'salida' not in param.lower())
                 # Icono apropiado según el tipo de acción
@@ -602,23 +568,54 @@ class DBManager:
                                     font=('Segoe UI', 9),
                                     values=param_history)
                 entry.grid(row=row, column=1, sticky=(tk.W, tk.E), pady=8, ipady=3)
+
+                # Mostrar sugerencias automáticamente al hacer clic (solo si hay historial)
+                if param_history:
+                    entry.bind('<Button-1>', lambda _e, combo=entry: combo.after(50, combo.post))
+
                 self.param_widgets[param] = var
 
-            # Precargar con el último valor usado si existe (excepto password por seguridad)
-            if param in self.global_params and param != 'password':
-                self.param_widgets[param].set(self.global_params[param])
+            # NO precargar valores automáticamente - solo están disponibles en el historial como sugerencias
+            # Los valores están en param_history (Combobox values) para selección manual
 
             row += 1
         
         self.params_frame.columnconfigure(1, weight=1)
-        
-        module_config_key = f"module_{module['id']}"
-        if module_config_key in self.config:
-            saved_config = self.config[module_config_key]
-            for param, value in saved_config.items():
-                if param in self.param_widgets:
-                    self.param_widgets[param].set(value)
-        
+
+        # NO precargar la configuración guardada del módulo
+        # Los valores previos están disponibles en el historial del Combobox para que el usuario los seleccione
+
+        # Crear botones estáticos
+        for widget in self.btn_frame.winfo_children():
+            widget.destroy()
+
+        exec_btn = tk.Button(self.btn_frame, text="▶ Ejecutar Módulo",
+                            command=self.execute_current_module,
+                            font=('Segoe UI', 10, 'bold'),
+                            bg=self.colors['success'],
+                            fg='white',
+                            relief='flat',
+                            cursor='hand2',
+                            borderwidth=0,
+                            padx=10, pady=6)
+        exec_btn.grid(row=0, column=0, sticky='ew', padx=5)
+        self._add_hover_effect(exec_btn, self.colors['success'], '#229954')
+
+        stop_btn = tk.Button(self.btn_frame, text="⬛ Detener",
+                            command=self.stop_execution,
+                            font=('Segoe UI', 10, 'bold'),
+                            bg=self.colors['danger'],
+                            fg='white',
+                            relief='flat',
+                            cursor='hand2',
+                            borderwidth=0,
+                            padx=10, pady=6)
+        stop_btn.grid(row=0, column=1, sticky='ew', padx=5)
+        self._add_hover_effect(stop_btn, self.colors['danger'], '#c0392b')
+
+        for i in range(2):
+            self.btn_frame.columnconfigure(i, weight=1)
+
         self.log_message(f"\n{'='*70}", "info")
         self.log_message(f"Modulo seleccionado: {module['name']}", "module")
         self.log_message(f"Tipo: {module['type'].upper()}", "info")
@@ -653,46 +650,7 @@ class DBManager:
         
         if path:
             var.set(path)
-            
-    def save_module_config(self):
-        if not hasattr(self, 'selected_module'):
-            messagebox.showwarning("Advertencia", "No hay modulo seleccionado")
-            return
 
-        module_config = {}
-        for param, widget in self.param_widgets.items():
-            value = widget.get().strip()
-            module_config[param] = value
-
-            # Guardar como valor global reutilizable si no está vacío (excepto password)
-            if value and param != 'password':
-                self.global_params[param] = value
-
-                # Actualizar historial de valores para este parámetro (excepto password)
-                history_key = f'_history_{param}'
-                param_history = self.config.get(history_key, [])
-
-                # Agregar el nuevo valor si no existe ya en el historial
-                if value not in param_history:
-                    param_history.append(value)
-                    # Mantener solo los últimos 10 valores
-                    if len(param_history) > 10:
-                        param_history = param_history[-10:]
-                    self.config[history_key] = param_history
-                else:
-                    # Si el valor ya existe, moverlo al final (más reciente)
-                    param_history.remove(value)
-                    param_history.append(value)
-                    self.config[history_key] = param_history
-
-        module_config_key = f"module_{self.selected_module['id']}"
-        self.config[module_config_key] = module_config
-        # Persistir mapa global de parámetros reutilizables
-        self.config['_global_params'] = self.global_params
-        self.save_config()
-
-        self.log_message(" Configuracion guardada correctamente", "success")
-        
     def execute_current_module(self):
         if not hasattr(self, 'selected_module'):
             messagebox.showwarning("Advertencia", "Selecciona un modulo primero")
