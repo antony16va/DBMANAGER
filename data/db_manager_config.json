@@ -2,8 +2,9 @@
   "_history_host": [
     "localhost",
     "192.168.44.432",
-    "192.168.44.49",
-    "192.168.44.41"
+    "192.168.44.48",
+    "192.168.44.41",
+    "192.168.44.49"
   ],
   "_history_puerto": [
     "5432",
@@ -12,12 +13,20 @@
   "_history_bd": [
     "gemma",
     "claridad_dev",
-    "sigloc_dev"
+    "sigloc_dev",
+    "ropc",
+    "sce",
+    "sigloc_qa",
+    "cae",
+    "cemm"
   ],
   "_history_usuario": [
     "postgres",
     "claridad",
-    "sigloc"
+    "avalencia",
+    "sigloc",
+    "cae",
+    "cemm"
   ],
   "_history_password": [
     "sigloc_ab01$"
@@ -28,14 +37,14 @@
     "C:/Users/avalencia/Desktop/DBMANAGER/prueba.sql"
   ],
   "_global_params": {
-    "host": "192.168.44.41",
+    "host": "192.168.44.49",
     "puerto": "5433",
-    "bd": "sigloc_dev",
-    "usuario": "sigloc",
+    "bd": "cemm",
+    "usuario": "cemm",
     "password": "sigloc_ab01$",
     "ruta_salida_ddl_completo": "C:/Users/avalencia/Desktop/DBMANAGER/prueba.sql",
-    "esquema": "sigloc",
-    "ruta_salida_rtf": "C:/Users/avalencia/Desktop/DBMANAGER/sigloc.rtf",
+    "esquema": "cemm_emc2025",
+    "ruta_salida_rtf": "C:/Users/avalencia/Desktop/DBMANAGER/cemm.rtf",
     "ruta_ddl_completo": "C:/Users/Antony/Desktop/Nueva carpeta (2)/PRACTICAS FINAL/DBMANAGER/dump.sql",
     "ruta_plantilla_excel": "C:/Users/Antony/Desktop/Nueva carpeta (2)/PRACTICAS FINAL/DBMANAGER/resources/Plantilla_Modelo.xlsx",
     "ruta_salida_ddl_base": "C:/Users/Antony/Desktop/Nueva carpeta (2)/PRACTICAS FINAL/DBMANAGER/ddl_inicial.sql",
@@ -44,13 +53,22 @@
   },
   "_history_esquema": [
     "claridad_admin",
-    "sigloc"
+    "ropc_eg2026",
+    "cae_admin",
+    "sce_nacion_eg2026",
+    "sigloc",
+    "cae_eg2026",
+    "cemm_emc2025"
   ],
   "_history_ruta_salida_rtf": [
     "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/diccionario_sigloc.rtf",
     "C:/Users/Antony/Desktop/Nueva carpeta (2)/PRACTICAS FINAL/DBMANAGER/sigloc.rtf",
     "C:/Users/avalencia/Desktop/DBMANAGER/claridad.rtf",
-    "C:/Users/avalencia/Desktop/DBMANAGER/sigloc.rtf"
+    "C:/Users/avalencia/Desktop/DBMANAGER/sigloc.rtf",
+    "C:/Users/avalencia/Desktop/DBMANAGER/cae.rtf",
+    "C:/Users/avalencia/Desktop/DBMANAGER/cae_admin.rtf",
+    "C:/Users/avalencia/Desktop/DBMANAGER/sce.rtf",
+    "C:/Users/avalencia/Desktop/DBMANAGER/cemm.rtf"
   ],
   "_history_ruta_ddl_completo": [
     "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/ddl_final.sql",

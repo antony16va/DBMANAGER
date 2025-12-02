@@ -3,7 +3,8 @@
     "allow": [
       "Bash(Test-Path \"C:\\Users\\Antony\\AppData\\Local\\Programs\\Python\\Python314\\python.exe\")",
       "Bash(powershell:*)",
-      "Bash(py:*)"
+      "Bash(py:*)",
+      "Bash(Remove-Item \"c:\\Users\\avalencia\\Desktop\\DBMANAGER\\modules\\generar_ddl_inicial.py\" -Force)"
     ],
     "deny": [],
     "ask": []

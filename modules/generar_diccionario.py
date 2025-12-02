@@ -120,7 +120,7 @@ def create_table_row(cells, widths, is_header=False):
 def obtener_esquemas_con_comentarios(cursor):
     """Obtiene esquemas con sus comentarios"""
     sql = """
-    SELECT 
+    SELECT
         n.nspname AS esquema,
         obj_description(n.oid, 'pg_namespace') AS comentario
     FROM pg_namespace n
@@ -134,6 +134,7 @@ def obtener_esquemas_con_comentarios(cursor):
         return {row[0]: row[1] or '' for row in cursor.fetchall()}
     except Exception as e:
         print(f"Error al obtener esquemas: {e}")
+        cursor.connection.rollback()
         return {}
 
 def obtener_tablespaces_con_comentarios(cursor):
@@ -150,6 +151,7 @@ def obtener_tablespaces_con_comentarios(cursor):
         return {row[0]: row[1] or '' for row in cursor.fetchall()}
     except Exception as e:
         print(f"Error al obtener tablespaces: {e}")
+        cursor.connection.rollback()
         return {}
 
 def obtener_extensiones_con_comentarios(cursor, schema):
@@ -168,6 +170,7 @@ def obtener_extensiones_con_comentarios(cursor, schema):
         return {row[0]: row[1] or '' for row in cursor.fetchall()}
     except Exception as e:
         print(f"Error al obtener extensiones: {e}")
+        cursor.connection.rollback()
         return {}
 
 def obtener_tablas_con_comentarios(cursor, schema):
@@ -187,6 +190,7 @@ def obtener_tablas_con_comentarios(cursor, schema):
         return {row[0]: row[1] or '' for row in cursor.fetchall()}
     except Exception as e:
         print(f"Error al obtener tablas: {e}")
+        cursor.connection.rollback()
         return {}
 
 def obtener_nombres_tablas(cursor, schema):
@@ -203,6 +207,7 @@ def obtener_nombres_tablas(cursor, schema):
         return [row[0] for row in cursor.fetchall()]
     except Exception as e:
         print(f"Error al obtener nombres de tablas: {e}")
+        cursor.connection.rollback()
         return []
 
 def obtener_campos_tabla(cursor, schema, table_name):
@@ -314,6 +319,7 @@ def obtener_campos_tabla(cursor, schema, table_name):
         
     except Exception as e:
         print(f"Error al obtener campos de {table_name}: {e}")
+        cursor.connection.rollback()  # Recuperar la transacción
         import traceback
         traceback.print_exc()
         return []
@@ -335,6 +341,7 @@ def obtener_procedimientos_con_comentarios(cursor, schema):
         return {row[0]: row[1] or '' for row in cursor.fetchall()}
     except Exception as e:
         print(f"Error al obtener procedimientos: {e}")
+        cursor.connection.rollback()
         return {}
 
 def obtener_funciones_con_comentarios(cursor, schema):
@@ -355,6 +362,7 @@ def obtener_funciones_con_comentarios(cursor, schema):
         return {row[0]: row[1] or '' for row in cursor.fetchall()}
     except Exception as e:
         print(f"Error al obtener funciones: {e}")
+        cursor.connection.rollback()
         return {}
 
 def obtener_vistas_con_comentarios(cursor, schema):
@@ -374,6 +382,7 @@ def obtener_vistas_con_comentarios(cursor, schema):
         return {row[0]: row[1] or '' for row in cursor.fetchall()}
     except Exception as e:
         print(f"Error al obtener vistas: {e}")
+        cursor.connection.rollback()
         return {}
 
 def obtener_triggers_con_comentarios(cursor, schema):
@@ -394,6 +403,7 @@ def obtener_triggers_con_comentarios(cursor, schema):
         return {row[0]: row[1] or '' for row in cursor.fetchall()}
     except Exception as e:
         print(f"Error al obtener triggers: {e}")
+        cursor.connection.rollback()
         return {}
 
 def obtener_funciones_triggers_con_comentarios(cursor, schema):
@@ -413,6 +423,7 @@ def obtener_funciones_triggers_con_comentarios(cursor, schema):
         return {row[0]: row[1] or '' for row in cursor.fetchall()}
     except Exception as e:
         print(f"Error al obtener funciones trigger: {e}")
+        cursor.connection.rollback()
         return {}
 
 def obtener_types_con_comentarios(cursor, schema):
@@ -436,6 +447,7 @@ def obtener_types_con_comentarios(cursor, schema):
         return {row[0]: row[1] or '' for row in cursor.fetchall()}
     except Exception as e:
         print(f"Error al obtener types: {e}")
+        cursor.connection.rollback()
         return {}
 
 def obtener_dblinks_con_comentarios(cursor, schema):
@@ -452,6 +464,7 @@ def obtener_dblinks_con_comentarios(cursor, schema):
         return {row[0]: row[1] or '' for row in cursor.fetchall()}
     except Exception as e:
         print(f"Error al obtener dblinks/foreign servers: {e}")
+        cursor.connection.rollback()
         return {}
 
 def obtener_tablas_foraneas_con_comentarios(cursor, schema):
@@ -471,6 +484,7 @@ def obtener_tablas_foraneas_con_comentarios(cursor, schema):
         return {row[0]: row[1] or '' for row in cursor.fetchall()}
     except Exception as e:
         print(f"Error al obtener tablas foráneas: {e}")
+        cursor.connection.rollback()
         return {}
 
 def obtener_sinonimos_con_comentarios(cursor, schema):
@@ -500,6 +514,7 @@ def obtener_indices_con_comentarios(cursor, schema):
         return {row[0]: row[1] or '' for row in cursor.fetchall()}
     except Exception as e:
         print(f"Error al obtener índices: {e}")
+        cursor.connection.rollback()
         return {}
 
 def obtener_constraints_con_comentarios(cursor, schema):
@@ -518,6 +533,7 @@ def obtener_constraints_con_comentarios(cursor, schema):
         return {row[0]: row[1] or '' for row in cursor.fetchall()}
     except Exception as e:
         print(f"Error al obtener constraints: {e}")
+        cursor.connection.rollback()
         return {}
 
 def obtener_jobs_con_comentarios(cursor):
@@ -557,6 +573,7 @@ def generar_diccionario_rtf(host, port, database, user, password, schema, output
             user=user,
             password=password
         )
+        conn.autocommit = True  # Activar autocommit para evitar problemas de transacciones abortadas
         cursor = conn.cursor()
         print("Conexión exitosa a PostgreSQL")
     except Exception as e:

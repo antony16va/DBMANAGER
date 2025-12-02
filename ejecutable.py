@@ -177,12 +177,12 @@ class DBManager:
         self.modules = [
             {
                 "id": 1,
-                "name": "GENERAR DDL INICIAL",
-                "script": str(self.modules_dir / "generar_ddl_inicial.py"),
+                "name": "AGREGAR COMENTARIOS",
+                "script": str(self.modules_dir / "agregar_comentarios.py"),
                 "type": "python",
                 "icon": "📝",
                 "color": "#3498db",
-                "params": ["ruta_plantilla_excel", "ruta_salida_ddl_base"]
+                "params": ["host", "puerto", "bd", "usuario", "password", "esquema"]
             },
             {
                 "id": 2,
