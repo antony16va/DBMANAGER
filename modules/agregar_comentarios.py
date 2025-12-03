@@ -15,16 +15,18 @@ class ComentariosGUI:
         self.schema = schema
         self.conn = None
         self.cursor = None
-        self.tablas_datos = {}  
-        self.widgets_comentarios = {}  
+        self.tablas_nombres = []  # Lista de nombres de tablas
+        self.tabla_actual = None  # Tabla seleccionada actualmente
+        self.campos_actuales = []  # Campos de la tabla actual
+        self.widgets_comentarios = {}  # {campo: Text widget}
 
         self.root = tk.Tk()
         self.root.title(f"Agregar Comentarios - {schema} @ {database}")
-        self.root.geometry("1200x600")
+        self.root.geometry("1400x700")
 
         self.conectar_bd()
         self.crear_interfaz()
-        self.cargar_tablas()
+        self.cargar_lista_tablas()
 
 
 
@@ -64,21 +66,75 @@ class ComentariosGUI:
 
     def crear_interfaz(self):
         """Crea la interfaz gráfica principal"""
+        # Frame superior con información
         info_frame = ttk.Frame(self.root, padding="10")
         info_frame.pack(side=tk.TOP, fill=tk.X)
+
         ttk.Label(info_frame, text=f"Base de datos: {self.database}", font=('Arial', 10, 'bold')).pack(side=tk.LEFT, padx=5)
         ttk.Label(info_frame, text=f"Esquema: {self.schema}", font=('Arial', 10, 'bold')).pack(side=tk.LEFT, padx=5)
+
+        # Frame para selección de tabla
+        selector_frame = ttk.Frame(self.root, padding="10")
+        selector_frame.pack(side=tk.TOP, fill=tk.X)
+
+        ttk.Label(selector_frame, text="Seleccionar Tabla:", font=('Arial', 11, 'bold')).pack(side=tk.LEFT, padx=5)
+
+        self.tabla_var = tk.StringVar()
+        self.combo_tablas = ttk.Combobox(selector_frame, textvariable=self.tabla_var,
+                                         state='readonly', width=40, font=('Arial', 10))
+        self.combo_tablas.pack(side=tk.LEFT, padx=5)
+        self.combo_tablas.bind('<<ComboboxSelected>>', self.on_tabla_seleccionada)
+
+        ttk.Label(selector_frame, text="", width=10).pack(side=tk.LEFT)  # Espaciador
+
+        # Frame para botones de acción
         btn_frame = ttk.Frame(self.root, padding="10")
         btn_frame.pack(side=tk.TOP, fill=tk.X)
-        ttk.Button(btn_frame, text="💾 Guardar Todos los Comentarios", command=self.guardar_todos_comentarios).pack(side=tk.LEFT, padx=5)
-        ttk.Button(btn_frame, text="🔄 Recargar", command=self.recargar_datos).pack(side=tk.LEFT, padx=5)
-        ttk.Button(btn_frame, text="❌ Cerrar", command=self.cerrar).pack(side=tk.RIGHT, padx=5)
-        # Notebook (pestañas) para las tablas
-        self.notebook = ttk.Notebook(self.root)
-        self.notebook.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
-    def cargar_tablas(self):
-        """Carga todas las tablas del esquema"""
+        ttk.Button(btn_frame, text="💾 Guardar Comentarios de esta Tabla",
+                  command=self.guardar_comentarios_tabla).pack(side=tk.LEFT, padx=5)
+        ttk.Button(btn_frame, text="🔄 Recargar Tabla",
+                  command=self.recargar_tabla_actual).pack(side=tk.LEFT, padx=5)
+        ttk.Button(btn_frame, text="❌ Cerrar", command=self.cerrar).pack(side=tk.RIGHT, padx=5)
+
+        # Frame principal para los campos (con scroll)
+        self.main_frame = ttk.Frame(self.root)
+        self.main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+        # Crear canvas y scrollbar
+        self.canvas = tk.Canvas(self.main_frame, bg='white')
+        self.scrollbar = ttk.Scrollbar(self.main_frame, orient="vertical", command=self.canvas.yview)
+        self.scrollable_frame = ttk.Frame(self.canvas)
+
+        self.scrollable_frame.bind(
+            "<Configure>",
+            lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+        )
+
+        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+
+        self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        # Habilitar scroll con rueda del mouse
+        def _on_mousewheel(event):
+            self.canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+        self.canvas.bind_all("<MouseWheel>", _on_mousewheel)
+
+        # Mensaje inicial
+        self.crear_mensaje_inicial()
+
+    def crear_mensaje_inicial(self):
+        """Crea un mensaje inicial pidiendo seleccionar una tabla"""
+        mensaje_label = ttk.Label(self.scrollable_frame,
+                                  text="Seleccione una tabla del menú desplegable para comenzar",
+                                  font=('Arial', 12),
+                                  foreground='gray')
+        mensaje_label.pack(pady=50)
+
+    def cargar_lista_tablas(self):
+        """Carga la lista de tablas en el combobox"""
         try:
             sql = """
             SELECT table_name
@@ -88,80 +144,100 @@ class ComentariosGUI:
             ORDER BY table_name
             """
             self.cursor.execute(sql, (self.schema,))
-            tablas = [row[0] for row in self.cursor.fetchall()]
-            if not tablas:
+            self.tablas_nombres = [row[0] for row in self.cursor.fetchall()]
+
+            if not self.tablas_nombres:
                 messagebox.showwarning("Sin Tablas", f"No se encontraron tablas en el esquema '{self.schema}'")
                 self.cerrar()
                 return
-            print(f"✓ Se encontraron {len(tablas)} tablas")
-            # Crear una pestaña por cada tabla
-            for tabla in tablas:
-                self.crear_pestana_tabla(tabla)
+
+            print(f"Se encontraron {len(self.tablas_nombres)} tablas")
+
+            # Configurar el combobox con las tablas
+            self.combo_tablas['values'] = self.tablas_nombres
+
         except Exception as e:
             messagebox.showerror("Error", f"Error al cargar tablas:\n{e}")
             self.cerrar()
 
-    def crear_pestana_tabla(self, tabla: str):
-        """Crea una pestaña para una tabla específica"""
+    def on_tabla_seleccionada(self, event):
+        """Evento cuando se selecciona una tabla del combobox"""
+        tabla_seleccionada = self.tabla_var.get()
+        if tabla_seleccionada:
+            self.cargar_campos_tabla(tabla_seleccionada)
+
+    def limpiar_frame_campos(self):
+        """Limpia el contenido del frame de campos"""
+        for widget in self.scrollable_frame.winfo_children():
+            widget.destroy()
+        self.widgets_comentarios.clear()
+
+    def cargar_campos_tabla(self, tabla: str):
+        """Carga y muestra los campos de una tabla específica"""
         # Obtener campos de la tabla
         campos_info = self.obtener_campos_tabla(tabla)
+
         if not campos_info:
+            messagebox.showwarning("Sin Campos", f"No se encontraron campos en la tabla '{tabla}'")
             return
-        self.tablas_datos[tabla] = campos_info
-        # Crear frame para la pestaña
-        tab_frame = ttk.Frame(self.notebook)
-        self.notebook.add(tab_frame, text=tabla)
-        # Crear canvas y scrollbar para scroll vertical
-        canvas = tk.Canvas(tab_frame)
-        scrollbar = ttk.Scrollbar(tab_frame, orient="vertical", command=canvas.yview)
-        scrollable_frame = ttk.Frame(canvas)
-        scrollable_frame.bind(
-            "<Configure>",
-            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
-        )
 
-        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
-        canvas.configure(yscrollcommand=scrollbar.set)
+        self.tabla_actual = tabla
+        self.campos_actuales = campos_info
 
-        # Header
-        header_frame = ttk.Frame(scrollable_frame)
+        # Limpiar el frame anterior
+        self.limpiar_frame_campos()
+
+        # Header con el nombre de la tabla
+        header_frame = ttk.Frame(self.scrollable_frame)
         header_frame.pack(fill=tk.X, padx=10, pady=10)
-        ttk.Label(header_frame, text=f"Tabla: {tabla}", font=('Arial', 12, 'bold')).pack(side=tk.LEFT)
-        ttk.Button(header_frame, text="💾 Guardar Comentarios de esta Tabla",
-                  command=lambda t=tabla: self.guardar_comentarios_tabla(t)).pack(side=tk.RIGHT, padx=5)
+
+        ttk.Label(header_frame, text=f"Tabla: {tabla}",
+                 font=('Arial', 14, 'bold'),
+                 foreground='#2c3e50').pack(side=tk.LEFT)
+
+        ttk.Label(header_frame, text=f"({len(campos_info)} campos)",
+                 font=('Arial', 10),
+                 foreground='gray').pack(side=tk.LEFT, padx=10)
+
         # Grid con campos
-        grid_frame = ttk.Frame(scrollable_frame)
+        grid_frame = ttk.Frame(self.scrollable_frame)
         grid_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+
         # Headers del grid
-        ttk.Label(grid_frame, text="Campo", font=('Arial', 10, 'bold'), width=25, anchor='w').grid(row=0, column=0, padx=5, pady=5, sticky='w')
-        ttk.Label(grid_frame, text="Tipo de Dato", font=('Arial', 10, 'bold'), width=20, anchor='w').grid(row=0, column=1, padx=5, pady=5, sticky='w')
-        ttk.Label(grid_frame, text="Comentario", font=('Arial', 10, 'bold'), width=60, anchor='w').grid(row=0, column=2, padx=5, pady=5, sticky='w')
+        ttk.Label(grid_frame, text="Campo", font=('Arial', 10, 'bold'),
+                 width=30, anchor='w').grid(row=0, column=0, padx=5, pady=5, sticky='w')
+        ttk.Label(grid_frame, text="Tipo de Dato", font=('Arial', 10, 'bold'),
+                 width=25, anchor='w').grid(row=0, column=1, padx=5, pady=5, sticky='w')
+        ttk.Label(grid_frame, text="Comentario", font=('Arial', 10, 'bold'),
+                 width=70, anchor='w').grid(row=0, column=2, padx=5, pady=5, sticky='w')
+
         # Agregar separador
-        ttk.Separator(grid_frame, orient='horizontal').grid(row=1, column=0, columnspan=3, sticky='ew', pady=5)
+        ttk.Separator(grid_frame, orient='horizontal').grid(row=1, column=0, columnspan=3,
+                                                            sticky='ew', pady=5)
+
         # Crear campos editables
         for idx, (campo, tipo, comentario_actual) in enumerate(campos_info, start=2):
             # Nombre del campo
-            ttk.Label(grid_frame, text=campo, width=25, anchor='w').grid(row=idx, column=0, padx=5, pady=5, sticky='w')
+            ttk.Label(grid_frame, text=campo, width=30, anchor='w',
+                     font=('Arial', 9)).grid(row=idx, column=0, padx=5, pady=5, sticky='w')
+
             # Tipo de dato
-            ttk.Label(grid_frame, text=tipo, width=20, anchor='w', foreground='gray').grid(row=idx, column=1, padx=5, pady=5, sticky='w')
+            ttk.Label(grid_frame, text=tipo, width=25, anchor='w',
+                     foreground='gray', font=('Arial', 9)).grid(row=idx, column=1, padx=5, pady=5, sticky='w')
+
             # Text widget para comentario (multilinea con altura fija)
-            text_widget = tk.Text(grid_frame, width=60, height=2, wrap=tk.WORD, font=('Arial', 9))
+            text_widget = tk.Text(grid_frame, width=70, height=3, wrap=tk.WORD,
+                                 font=('Arial', 9), relief='solid', borderwidth=1)
             text_widget.grid(row=idx, column=2, padx=5, pady=5, sticky='ew')
+
             # Insertar comentario actual si existe
             if comentario_actual:
                 text_widget.insert('1.0', comentario_actual)
+
             # Guardar referencia al widget
-            self.widgets_comentarios[(tabla, campo)] = text_widget
-        # Pack canvas y scrollbar
-        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+            self.widgets_comentarios[campo] = text_widget
 
-
-
-        # Habilitar scroll con rueda del mouse
-        def _on_mousewheel(event):
-            canvas.yview_scroll(int(-1*(event.delta/120)), "units")
-        canvas.bind_all("<MouseWheel>", _on_mousewheel)
+        print(f"Tabla '{tabla}' cargada con {len(campos_info)} campos")
 
     def obtener_campos_tabla(self, tabla: str) -> List[Tuple[str, str, str]]:
         """Obtiene información de campos de una tabla"""
@@ -255,111 +331,37 @@ class ComentariosGUI:
 
 
 
-    def guardar_comentarios_tabla(self, tabla: str):
-
-        """Guarda los comentarios de una tabla específica"""
+    def guardar_comentarios_tabla(self):
+        """Guarda los comentarios de la tabla actual"""
+        if not self.tabla_actual:
+            messagebox.showwarning("Sin Tabla", "Seleccione una tabla primero")
+            return
 
         try:
-
             campos_modificados = 0
 
-
-
-            for campo, tipo, comentario_original in self.tablas_datos[tabla]:
-
-                widget = self.widgets_comentarios.get((tabla, campo))
-
+            for campo, tipo, comentario_original in self.campos_actuales:
+                widget = self.widgets_comentarios.get(campo)
                 if not widget:
-
                     continue
 
-
-
                 # Obtener el nuevo comentario del widget
-
                 nuevo_comentario = widget.get('1.0', tk.END).strip()
 
-
-
                 # Solo actualizar si cambió
-
                 if nuevo_comentario != comentario_original:
-
-                    self.aplicar_comentario(tabla, campo, nuevo_comentario)
-
+                    self.aplicar_comentario(self.tabla_actual, campo, nuevo_comentario)
                     campos_modificados += 1
 
-
-
             if campos_modificados > 0:
-
-                messagebox.showinfo("Éxito", f"Se guardaron {campos_modificados} comentarios en la tabla '{tabla}'")
-
+                messagebox.showinfo("Éxito", f"Se guardaron {campos_modificados} comentarios en la tabla '{self.tabla_actual}'")
+                # Recargar la tabla actual para mostrar los cambios
+                self.cargar_campos_tabla(self.tabla_actual)
             else:
-
-                messagebox.showinfo("Sin Cambios", f"No hay comentarios nuevos o modificados en la tabla '{tabla}'")
-
-
+                messagebox.showinfo("Sin Cambios", f"No hay comentarios nuevos o modificados en la tabla '{self.tabla_actual}'")
 
         except Exception as e:
-
-            messagebox.showerror("Error", f"Error al guardar comentarios de '{tabla}':\n{e}")
-
-
-
-    def guardar_todos_comentarios(self):
-
-        """Guarda todos los comentarios de todas las tablas"""
-
-        try:
-
-            total_modificados = 0
-
-
-
-            for tabla in self.tablas_datos:
-
-                for campo, tipo, comentario_original in self.tablas_datos[tabla]:
-
-                    widget = self.widgets_comentarios.get((tabla, campo))
-
-                    if not widget:
-
-                        continue
-
-
-
-                    # Obtener el nuevo comentario del widget
-
-                    nuevo_comentario = widget.get('1.0', tk.END).strip()
-
-
-
-                    # Solo actualizar si cambió
-
-                    if nuevo_comentario != comentario_original:
-
-                        self.aplicar_comentario(tabla, campo, nuevo_comentario)
-
-                        total_modificados += 1
-
-
-
-            if total_modificados > 0:
-
-                messagebox.showinfo("Éxito", f"Se guardaron {total_modificados} comentarios en total")
-
-                self.recargar_datos()
-
-            else:
-
-                messagebox.showinfo("Sin Cambios", "No hay comentarios nuevos o modificados")
-
-
-
-        except Exception as e:
-
-            messagebox.showerror("Error", f"Error al guardar comentarios:\n{e}")
+            messagebox.showerror("Error", f"Error al guardar comentarios de '{self.tabla_actual}':\n{e}")
 
 
 
@@ -405,33 +407,14 @@ class ComentariosGUI:
 
 
 
-    def recargar_datos(self):
+    def recargar_tabla_actual(self):
+        """Recarga la tabla actualmente seleccionada"""
+        if not self.tabla_actual:
+            messagebox.showwarning("Sin Tabla", "Seleccione una tabla primero")
+            return
 
-        """Recarga los datos desde la base de datos"""
-
-        # Limpiar notebook
-
-        for tab in self.notebook.tabs():
-
-            self.notebook.forget(tab)
-
-
-
-        # Limpiar estructuras de datos
-
-        self.tablas_datos.clear()
-
-        self.widgets_comentarios.clear()
-
-
-
-        # Recargar
-
-        self.cargar_tablas()
-
-
-
-        messagebox.showinfo("Recargado", "Los datos se han recargado correctamente")
+        self.cargar_campos_tabla(self.tabla_actual)
+        messagebox.showinfo("Recargado", f"La tabla '{self.tabla_actual}' se ha recargado correctamente")
 
 
 

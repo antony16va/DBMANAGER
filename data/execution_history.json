@@ -811,5 +811,50 @@
       "esquema": "cemm_emc2025",
       "ruta_salida_rtf": "C:/Users/avalencia/Desktop/DBMANAGER/cemm.rtf"
     }
+  },
+  {
+    "timestamp": "2025-12-03 09:41:36",
+    "module_id": 1,
+    "module_name": "AGREGAR COMENTARIOS",
+    "status": "success",
+    "duration": 2787.4524,
+    "params": {
+      "host": "192.168.44.49",
+      "puerto": "5433",
+      "bd": "cae",
+      "usuario": "cae",
+      "password": "cae_ab01$",
+      "esquema": "cae_eg2026"
+    }
+  },
+  {
+    "timestamp": "2025-12-03 09:55:12",
+    "module_id": 1,
+    "module_name": "AGREGAR COMENTARIOS",
+    "status": "success",
+    "duration": 810.020816,
+    "params": {
+      "host": "192.168.44.49",
+      "puerto": "5433",
+      "bd": "cae",
+      "usuario": "cae",
+      "password": "cae_ab01$",
+      "esquema": "cae_admin"
+    }
+  },
+  {
+    "timestamp": "2025-12-03 11:05:55",
+    "module_id": 1,
+    "module_name": "AGREGAR COMENTARIOS",
+    "status": "success",
+    "duration": 2505.233288,
+    "params": {
+      "host": "192.168.44.41",
+      "puerto": "5433",
+      "bd": "sigloc_dev",
+      "usuario": "sigloc",
+      "password": "sigloc_ab01$",
+      "esquema": "sigloc"
+    }
   }
 ]

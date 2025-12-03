@@ -3,8 +3,8 @@
     "localhost",
     "192.168.44.432",
     "192.168.44.48",
-    "192.168.44.41",
-    "192.168.44.49"
+    "192.168.44.49",
+    "192.168.44.41"
   ],
   "_history_puerto": [
     "5432",
@@ -13,20 +13,20 @@
   "_history_bd": [
     "gemma",
     "claridad_dev",
-    "sigloc_dev",
     "ropc",
     "sce",
     "sigloc_qa",
+    "cemm",
     "cae",
-    "cemm"
+    "sigloc_dev"
   ],
   "_history_usuario": [
     "postgres",
     "claridad",
     "avalencia",
-    "sigloc",
+    "cemm",
     "cae",
-    "cemm"
+    "sigloc"
   ],
   "_history_password": [
     "sigloc_ab01$"
@@ -37,13 +37,13 @@
     "C:/Users/avalencia/Desktop/DBMANAGER/prueba.sql"
   ],
   "_global_params": {
-    "host": "192.168.44.49",
+    "host": "192.168.44.41",
     "puerto": "5433",
-    "bd": "cemm",
-    "usuario": "cemm",
+    "bd": "sigloc_dev",
+    "usuario": "sigloc",
     "password": "sigloc_ab01$",
     "ruta_salida_ddl_completo": "C:/Users/avalencia/Desktop/DBMANAGER/prueba.sql",
-    "esquema": "cemm_emc2025",
+    "esquema": "sigloc",
     "ruta_salida_rtf": "C:/Users/avalencia/Desktop/DBMANAGER/cemm.rtf",
     "ruta_ddl_completo": "C:/Users/Antony/Desktop/Nueva carpeta (2)/PRACTICAS FINAL/DBMANAGER/dump.sql",
     "ruta_plantilla_excel": "C:/Users/Antony/Desktop/Nueva carpeta (2)/PRACTICAS FINAL/DBMANAGER/resources/Plantilla_Modelo.xlsx",
@@ -54,11 +54,11 @@
   "_history_esquema": [
     "claridad_admin",
     "ropc_eg2026",
-    "cae_admin",
     "sce_nacion_eg2026",
-    "sigloc",
+    "cemm_emc2025",
     "cae_eg2026",
-    "cemm_emc2025"
+    "cae_admin",
+    "sigloc"
   ],
   "_history_ruta_salida_rtf": [
     "C:/Users/Antony/Desktop/PRACTICAS FINAL/DBMANAGER/diccionario_sigloc.rtf",
